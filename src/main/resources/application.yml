@@ -1,0 +1,36 @@
+spring:
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+
+  datasource:
+    url: jdbc:postgresql://127.0.0.1/matrix
+    username: postgres
+    password: test
+    driver-class-name: org.postgresql.Driver
+  resources:
+    static-locations: classpath:/templates/
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+jpa:
+  show-sql: true
+hibernate:
+  ddl-auto: update
+devtools:
+  restart:
+    enabled: true
+jackson:
+  date-format: yyyy-MM-dd
+  time-zone: GMT+8
+
+server:
+  tomcat:
+    uri-encoding: UTF-8
+  port: 8888
