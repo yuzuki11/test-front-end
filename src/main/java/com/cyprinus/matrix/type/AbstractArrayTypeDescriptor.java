@@ -15,6 +15,7 @@ public abstract class AbstractArrayTypeDescriptor<T> extends AbstractTypeDescrip
 
     private Class<T> arrayObjectClass;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setParameterValues(Properties parameters) {
         arrayObjectClass = ((ParameterType) parameters
@@ -23,6 +24,7 @@ public abstract class AbstractArrayTypeDescriptor<T> extends AbstractTypeDescrip
 
     }
 
+    @SuppressWarnings("unchecked")
     public AbstractArrayTypeDescriptor(Class<T> arrayObjectClass) {
         super(
                 arrayObjectClass,

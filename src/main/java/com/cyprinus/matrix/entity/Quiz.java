@@ -1,12 +1,11 @@
 package com.cyprinus.matrix.entity;
 
-import com.cyprinus.matrix.type.IntArrayType;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
+import com.vladmihalcea.hibernate.type.array.IntArrayType;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.Future;
 import java.io.Serializable;
 import java.util.Date;
@@ -17,6 +16,8 @@ import java.util.List;
         @TypeDef(name = "int-array", typeClass = IntArrayType.class)
 })
 @Entity
+@SQLDelete(sql = "update demo set deleted = 1 where _id = ?")
+@Where(clause = "deleted = 0")
 public class Quiz implements Serializable {
 
     @Id
@@ -26,14 +27,17 @@ public class Quiz implements Serializable {
 
     //对应课程id
     @ManyToOne
-    @ElementCollection(targetClass = Lesson.class)
     private Lesson lesson;
 
-    //问题
-    @OneToMany
-    @JoinColumn(name = "_id")
-    private List<Problem> problems;
+    @JoinColumn(name = "deleted")
+    private Integer deleted = 0;
 
+    //问题
+    @ManyToMany
+    @JoinColumn(name = "problems")
+    @ElementCollection(targetClass = Problem.class)
+    private List<Problem> problems;
+//TODO: 这个“问题”有毛病 对应关系有点问题
     /*//标签
     labels: [{
         type: Schema.Types.ObjectId,
