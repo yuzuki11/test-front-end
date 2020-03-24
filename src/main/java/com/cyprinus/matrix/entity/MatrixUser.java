@@ -3,6 +3,7 @@ package com.cyprinus.matrix.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,6 +15,10 @@ public class MatrixUser implements Serializable {
     @GenericGenerator(name="MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
     @GeneratedValue(generator = "MongoLikeIdGenerator")
     private String _id;
+
+    //学号/工号
+    @Column(name = "userId", unique = true)
+    private String userId;
 
     //角色
     @Column(name = "role", unique = true, nullable = false, length = 20)
@@ -37,6 +42,7 @@ public class MatrixUser implements Serializable {
 
     //电子邮箱
     @Column(name = "email")
+    @Email
     private String email;
 
     //所教课程
@@ -123,5 +129,13 @@ public class MatrixUser implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
