@@ -24,6 +24,9 @@ spring:
     date-format: yyyy-MM-dd
     time-zone: GMT+8
 
+matrix:
+  secretKey: 123456
+
 server:
   tomcat:
     uri-encoding: UTF-8
