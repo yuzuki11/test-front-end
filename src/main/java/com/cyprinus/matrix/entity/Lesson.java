@@ -1,7 +1,11 @@
 package com.cyprinus.matrix.entity;
 
+import org.apache.catalina.User;
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 
 @Table(name = "Lesson")
@@ -9,8 +13,34 @@ import java.io.Serializable;
 public class Lesson implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GenericGenerator(name="MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
+    @GeneratedValue(generator = "MongoLikeIdGenerator")
     private String _id;
+
+    //选课编号
+    @Column(name = "lessonNum")
+    private Integer lessonNum;
+
+    //组班号
+    @Column(name = "classNum")
+    private String classNum;
+
+
+    //任课教师
+    @ManyToOne
+    @JoinColumn(name = "teacher")
+    private MatrixUser teacher;
+
+    //课程名称
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "students")
+    @ElementCollection(targetClass = MatrixUser.class)
+    private List<MatrixUser> students;
+
+    @Column(name = "term")
+    private String term;
 
     public String get_id() {
         return _id;
@@ -44,31 +74,29 @@ public class Lesson implements Serializable {
         this.name = name;
     }
 
-    //选课编号
-    @Column(name = "lessonNum")
-    private Integer lessonNum;
+    public MatrixUser getTeacher() {
+        return teacher;
+    }
 
-    //组班号
-    @Column(name = "classNum")
-    private String classNum;
+    public void setTeacher(MatrixUser teacher) {
+        this.teacher = teacher;
+    }
 
+    public List<MatrixUser> getStudents() {
+        return students;
+    }
 
-    //任课教师
-    @ManyToOne
-    @JoinColumn(name = "teacher")
-    private MatrixUser teacher;
+    @ManyToMany
+    @JoinColumn(name = "lessons_s")
+    public void setStudents(List<MatrixUser> students) {
+        this.students = students;
+    }
 
-    //课程名称
-    @Column(name = "name")
-    private String name;
+    public String getTerm() {
+        return term;
+    }
 
-    /*
-                students: [{
-        type: Schema.Types.ObjectId,
-                ref: 'MatrixUser',
-    }],
-
-        //开课学期
-        term: String,
-    }*/
+    public void setTerm(String term) {
+        this.term = term;
+    }
 }

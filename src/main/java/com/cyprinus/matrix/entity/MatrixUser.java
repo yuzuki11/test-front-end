@@ -1,7 +1,6 @@
 package com.cyprinus.matrix.entity;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +11,8 @@ import java.util.List;
 public class MatrixUser implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GenericGenerator(name="MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
+    @GeneratedValue(generator = "MongoLikeIdGenerator")
     private String _id;
 
     //角色
@@ -39,21 +39,35 @@ public class MatrixUser implements Serializable {
     @Column(name = "email")
     private String email;
 
-    //所选课程
-    @Column(name = "lessons")
+    //所教课程
+    @Column(name = "lessons_t")
     @ElementCollection(targetClass = Lesson.class)
-    private List<Lesson> lessons;
+    private List<Lesson> lessons_t;
+
+    //所选课程
+    @Column(name = "lessons_s")
+    @ElementCollection(targetClass = Lesson.class)
+    private List<Lesson> lessons_s;
 
     @OneToMany
     @JoinColumn(name = "teacher")
-    public List<Lesson> getLessons() {
-        return lessons;
+    public List<Lesson> getLessons_t() {
+        return lessons_t;
     }
 
-    public void setLessons(List<Lesson> lessons) {
-        this.lessons = lessons;
+    public void setLessons_t(List<Lesson> lessons_t) {
+        this.lessons_t = lessons_t;
     }
 
+    @ManyToMany
+    @JoinColumn(name = "students")
+    public List<Lesson> getLessons_s() {
+        return lessons_s;
+    }
+
+    public void setLessons_s(List<Lesson> lessons_s) {
+        this.lessons_s = lessons_s;
+    }
 
     public String get_id() {
         return _id;
