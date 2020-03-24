@@ -25,7 +25,7 @@ spring:
     time-zone: GMT+8
 
 matrix:
-  secretKey: 123456
+  secretKey: dGVzdA==
 
 server:
   tomcat:
