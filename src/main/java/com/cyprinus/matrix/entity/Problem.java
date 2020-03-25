@@ -1,6 +1,8 @@
 package com.cyprinus.matrix.entity;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -8,6 +10,8 @@ import java.util.List;
 
 @Table(name = "Problem")
 @Entity
+@SQLDelete(sql = "update problem set deleted = 1 where _id = ?")
+@Where(clause = "deleted = 0")
 public class Problem implements Serializable {
 
     @Id
@@ -46,7 +50,7 @@ public class Problem implements Serializable {
     private Integer point;
 
     //被那些Quiz引用
-    @ManyToMany
+    @ManyToMany(mappedBy = "problems")
     @Column(name = "quizRefers")
     private List<Quiz> quizRefers;
 
@@ -56,9 +60,8 @@ public class Problem implements Serializable {
                 ref: 'Picture',
     }],*/
 
-    /*//标签
-    labels: [{
-        type: Schema.Types.ObjectId,
-                ref: 'Label',
-    }],*/
+    //标签
+    @ManyToMany(mappedBy = "problems")
+    @Column(name = "labels")
+    private List<Label> labels;
 }

@@ -16,7 +16,7 @@ import java.util.List;
         @TypeDef(name = "int-array", typeClass = IntArrayType.class)
 })
 @Entity
-@SQLDelete(sql = "update demo set deleted = 1 where _id = ?")
+@SQLDelete(sql = "update quiz set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
 public class Quiz implements Serializable {
 
@@ -38,11 +38,10 @@ public class Quiz implements Serializable {
     //@ElementCollection(targetClass = Problem.class)
     private List<Problem> problems;
 
-    /*//标签
-    labels: [{
-        type: Schema.Types.ObjectId,
-                ref: 'Label',
-    }],*/
+    //标签
+    @ManyToMany(mappedBy = "quizzes")
+    @Column(name = "labels")
+    private List<Label> labels;
 
     //标题
     @Column(name = "title")
