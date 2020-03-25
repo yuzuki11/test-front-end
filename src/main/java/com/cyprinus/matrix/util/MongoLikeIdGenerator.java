@@ -10,6 +10,7 @@ import org.hibernate.type.Type;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
 
@@ -40,7 +41,7 @@ public class MongoLikeIdGenerator implements Configurable, IdentifierGenerator {
             byte id[] = new byte[12];
             byte timestampBytes[] = new byte[4];
             byte incrementBytes[] = new byte[3];
-            int timestamp = (int) System.currentTimeMillis();
+            int timestamp = (int) (System.currentTimeMillis() / 1000);
             increment++;
             timestampBytes[3] = (byte) (timestamp & 0xff);
             timestampBytes[2] = (byte) (timestamp >> 8 & 0xff);

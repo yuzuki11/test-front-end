@@ -1,20 +1,18 @@
 package com.cyprinus.matrix.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.cyprinus.matrix.type.MatrixBaseEntity;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import java.io.Serializable;
 import java.util.List;
 
 @Table(name = "MatrixUser")
 @Entity
-public class MatrixUser implements Serializable {
-
-    @Id
-    @GenericGenerator(name="MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
-    @GeneratedValue(generator = "MongoLikeIdGenerator")
-    private String _id;
+@SQLDelete(sql = "update matrix_user set deleted = 1 where _id = ?")
+@Where(clause = "deleted = 0")
+public class MatrixUser extends MatrixBaseEntity {
 
     //学号/工号
     @Column(name = "userId", unique = true)
@@ -75,14 +73,6 @@ public class MatrixUser implements Serializable {
 
     public void setLessons_s(List<Lesson> lessons_s) {
         this.lessons_s = lessons_s;
-    }
-
-    public String get_id() {
-        return _id;
-    }
-
-    public void set_id(String _id) {
-        this._id = _id;
     }
 
     public String getRole() {
