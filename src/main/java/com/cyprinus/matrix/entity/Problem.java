@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Table(name = "Problem")
 @Entity
@@ -44,6 +45,10 @@ public class Problem implements Serializable {
     @Column(name = "point")
     private Integer point;
 
+    //被那些Quiz引用
+    @ManyToMany
+    @Column(name = "quizRefers")
+    private List<Quiz> quizRefers;
 
     /*//答案图片
     AnswerPictures: [{

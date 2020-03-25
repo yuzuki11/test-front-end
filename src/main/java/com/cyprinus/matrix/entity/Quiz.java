@@ -34,10 +34,10 @@ public class Quiz implements Serializable {
 
     //问题
     @ManyToMany
-    @JoinColumn(name = "problems")
-    @ElementCollection(targetClass = Problem.class)
+    @Column(name = "problems")
+    //@ElementCollection(targetClass = Problem.class)
     private List<Problem> problems;
-//TODO: 这个“问题”有毛病 对应关系有点问题
+
     /*//标签
     labels: [{
         type: Schema.Types.ObjectId,
