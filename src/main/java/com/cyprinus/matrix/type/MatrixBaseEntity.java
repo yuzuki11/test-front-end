@@ -18,12 +18,16 @@ public class MatrixBaseEntity implements Serializable {
     @Column(name = "deleted")
     private Integer deleted = 0;
 
-    public String get_id() {
-        return _id;
+    public MatrixObjectId get_id() {
+        return new MatrixObjectId(_id);
     }
 
     public void set_id(String _id) {
         this._id = _id;
+    }
+
+    public void set_id(MatrixObjectId _id) {
+        this._id = _id.toString();
     }
 
     public Integer getDeleted() {
