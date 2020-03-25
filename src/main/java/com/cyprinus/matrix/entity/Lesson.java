@@ -35,8 +35,9 @@ public class Lesson implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @ManyToMany
     @Column(name = "students")
-    @ElementCollection(targetClass = MatrixUser.class)
+    //@ElementCollection(targetClass = MatrixUser.class)
     private List<MatrixUser> students;
 
     @Column(name = "term")
@@ -86,8 +87,8 @@ public class Lesson implements Serializable {
         return students;
     }
 
-    @ManyToMany
-    @JoinColumn(name = "lessons_s")
+    //@ManyToMany
+    //@JoinColumn(name = "lessons_s")
     public void setStudents(List<MatrixUser> students) {
         this.students = students;
     }

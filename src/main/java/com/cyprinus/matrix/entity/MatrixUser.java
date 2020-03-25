@@ -3,6 +3,7 @@ package com.cyprinus.matrix.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,6 +15,10 @@ public class MatrixUser implements Serializable {
     @GenericGenerator(name="MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
     @GeneratedValue(generator = "MongoLikeIdGenerator")
     private String _id;
+
+    //学号/工号
+    @Column(name = "userId", unique = true)
+    private String userId;
 
     //角色
     @Column(name = "role", unique = true, nullable = false, length = 20)
@@ -37,20 +42,23 @@ public class MatrixUser implements Serializable {
 
     //电子邮箱
     @Column(name = "email")
+    @Email
     private String email;
 
     //所教课程
+    @OneToMany
     @Column(name = "lessons_t")
-    @ElementCollection(targetClass = Lesson.class)
+    //@ElementCollection(targetClass = Lesson.class)
     private List<Lesson> lessons_t;
 
     //所选课程
+    @ManyToMany
     @Column(name = "lessons_s")
-    @ElementCollection(targetClass = Lesson.class)
+    //@ElementCollection(targetClass = Lesson.class)
     private List<Lesson> lessons_s;
 
-    @OneToMany
-    @JoinColumn(name = "teacher")
+    //@OneToMany
+    //@JoinColumn(name = "teacher")
     public List<Lesson> getLessons_t() {
         return lessons_t;
     }
@@ -59,8 +67,8 @@ public class MatrixUser implements Serializable {
         this.lessons_t = lessons_t;
     }
 
-    @ManyToMany
-    @JoinColumn(name = "students")
+    //@ManyToMany
+    //@JoinColumn(name = "students")
     public List<Lesson> getLessons_s() {
         return lessons_s;
     }
@@ -123,5 +131,13 @@ public class MatrixUser implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
