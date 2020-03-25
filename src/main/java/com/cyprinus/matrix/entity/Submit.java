@@ -1,23 +1,16 @@
 package com.cyprinus.matrix.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.cyprinus.matrix.type.MatrixBaseEntity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.List;
 
 @Table(name = "Submit")
 @Entity
 @SQLDelete(sql = "update submit set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
-public class Submit implements Serializable {
-
-    @Id
-    @GenericGenerator(name = "MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
-    @GeneratedValue(generator = "MongoLikeIdGenerator")
-    private String _id;
+public class Submit extends MatrixBaseEntity {
 
     //对应学生id，此处注意与学号不同！
     @ManyToOne

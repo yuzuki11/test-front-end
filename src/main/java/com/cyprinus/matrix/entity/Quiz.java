@@ -1,5 +1,6 @@
 package com.cyprinus.matrix.entity;
 
+import com.cyprinus.matrix.type.MatrixBaseEntity;
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import org.hibernate.annotations.*;
 
@@ -7,7 +8,6 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.Future;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -18,19 +18,11 @@ import java.util.List;
 @Entity
 @SQLDelete(sql = "update quiz set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
-public class Quiz implements Serializable {
-
-    @Id
-    @GenericGenerator(name = "MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
-    @GeneratedValue(generator = "MongoLikeIdGenerator")
-    private String _id;
+public class Quiz extends MatrixBaseEntity {
 
     //对应课程id
     @ManyToOne
     private Lesson lesson;
-
-    @JoinColumn(name = "deleted")
-    private Integer deleted = 0;
 
     //问题
     @ManyToMany
@@ -61,13 +53,13 @@ public class Quiz implements Serializable {
     @Column(name = "deadline")
     private Date deadline;
 
-    public String get_id() {
+    /*public String get_id() {
         return _id;
     }
 
     public void set_id(String _id) {
         this._id = _id;
-    }
+    }*/
 
     public Lesson getLesson() {
         return lesson;

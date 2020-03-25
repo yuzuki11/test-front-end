@@ -1,23 +1,20 @@
 package com.cyprinus.matrix.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.cyprinus.matrix.type.MatrixBaseEntity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.List;
 
 @Table(name = "Label")
 @Entity
 @SQLDelete(sql = "update label set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
-public class Label implements Serializable {
-
-    @Id
-    @GenericGenerator(name = "MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
-    @GeneratedValue(generator = "MongoLikeIdGenerator")
-    private String _id;
+public class Label extends MatrixBaseEntity {
 
     //是否是科目标签
     private boolean base;
