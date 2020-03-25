@@ -36,4 +36,44 @@ public class Label extends MatrixBaseEntity {
     @Column(name = "quizzes")
     private List<Quiz>quizzes;
 
+    public boolean isBase() {
+        return base;
+    }
+
+    public void setBase(boolean base) {
+        this.base = base;
+    }
+
+    public String getAbbr() {
+        return abbr;
+    }
+
+    public void setAbbr(String abbr) {
+        this.abbr = abbr;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Problem> getProblems() {
+        return problems;
+    }
+
+    public void setProblems(List<Problem> problems) {
+        this.problems = problems;
+    }
+
+    public List<Quiz> getQuizzes() {
+        return quizzes;
+    }
+
+    public void setQuizzes(List<Quiz> quizzes) {
+        this.quizzes = quizzes;
+    }
+
 }

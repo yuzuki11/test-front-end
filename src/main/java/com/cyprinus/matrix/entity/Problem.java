@@ -61,4 +61,69 @@ public class Problem extends MatrixBaseEntity {
     @ManyToMany(mappedBy = "problems")
     @Column(name = "labels")
     private List<Label> labels;
+
+    public String getNum() {
+        return num;
+    }
+
+    public void setNum(String num) {
+        this.num = num;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getProblemType() {
+        return problemType;
+    }
+
+    public void setProblemType(String problemType) {
+        this.problemType = problemType;
+    }
+
+    public Boolean getIfObjective() {
+        return ifObjective;
+    }
+
+    public void setIfObjective(Boolean ifObjective) {
+        this.ifObjective = ifObjective;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public Integer getPoint() {
+        return point;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
+    }
+
+    public List<Quiz> getQuizRefers() {
+        return quizRefers;
+    }
+
+    public void setQuizRefers(List<Quiz> quizRefers) {
+        this.quizRefers = quizRefers;
+    }
+
+    public List<Label> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<Label> labels) {
+        this.labels = labels;
+    }
+
 }
