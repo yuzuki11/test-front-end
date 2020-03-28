@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-class MongoLikeIdTest {
+class NonSpringTests {
 
     @Test
     void getId() {
@@ -28,6 +28,14 @@ class MongoLikeIdTest {
         MatrixObjectId matrixObjectId = new MatrixObjectId("5349b4ddd2781d08c09890f4");
         System.out.println(matrixObjectId.toString());
         System.out.println(matrixObjectId.getTimestamp());
+    }
+
+    @Test
+    void testNotNull(){
+        Boolean b = null;
+        System.out.print(b);
+        System.out.print(!b);
+        System.out.print(!!b);
     }
 
 }

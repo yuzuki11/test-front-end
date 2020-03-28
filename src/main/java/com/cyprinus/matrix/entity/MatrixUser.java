@@ -15,7 +15,7 @@ import java.util.List;
 public class MatrixUser extends MatrixBaseEntity {
 
     //学号/工号
-    @Column(name = "userId", unique = true)
+    @Column(name = "userId", unique = true, nullable = false)
     private String userId;
 
     //角色

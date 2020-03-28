@@ -1,7 +1,7 @@
 package com.cyprinus.matrix.service;
 
 import com.cyprinus.matrix.entity.MatrixUser;
-import com.cyprinus.matrix.exception.DeniedException;
+import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -29,12 +29,12 @@ public class MatrixUserService {
         this.jwtUtil = jwtUtil;
     }
 
-    public Map<String, Object> loginCheck(MatrixUser targetUser) throws EntityNotFoundException, DeniedException {
+    public Map<String, Object> loginCheck(MatrixUser targetUser) throws EntityNotFoundException, ForbiddenException {
         targetUser.setUserId(targetUser.getUserId());
         Example<MatrixUser> example = Example.of(targetUser);
         MatrixUser matrixUser = matrixUserRepository.findOne(example).orElseThrow(() -> new EntityNotFoundException("用户名密码不匹配!"));
         if (!matrixUser.getPassword().equals(targetUser.getPassword()))
-            throw new DeniedException("用户名密码不匹配!");
+            throw new ForbiddenException("用户名密码不匹配!");
         Map<String, String> signData = new HashMap<>();
         signData.put("userId", targetUser.getUserId());
         signData.put("todo", "login");
