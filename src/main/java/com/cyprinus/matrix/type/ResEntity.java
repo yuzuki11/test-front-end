@@ -20,7 +20,17 @@ public class ResEntity {
         if (body != null) body.putAll(defaultData);
         else body = defaultData;
         this.response = new ResponseEntity<>(body, status);
+    }
 
+    public ResEntity(HttpStatus status, String msg, Boolean fatal) {
+        Map<String, Object> body;
+        Map<String, Object> defaultData = new HashMap<>();
+        defaultData.put("success", (status == HttpStatus.OK));
+        defaultData.put("msg", msg);
+        //noinspection DoubleNegation
+        defaultData.put("fatal", fatal == null ? false : fatal);
+        body = defaultData;
+        this.response = new ResponseEntity<>(body, status);
     }
 
     public ResEntity(HttpStatus status, String msg, Map<String, Object> data) {
@@ -31,7 +41,15 @@ public class ResEntity {
         if (body != null) body.putAll(defaultData);
         else body = defaultData;
         this.response = new ResponseEntity<>(body, status);
+    }
 
+    public ResEntity(HttpStatus status, String msg) {
+        Map<String, Object> body;
+        Map<String, Object> defaultData = new HashMap<>();
+        defaultData.put("success", (status == HttpStatus.OK));
+        defaultData.put("msg", msg);
+        body = defaultData;
+        this.response = new ResponseEntity<>(body, status);
     }
 
     public ResponseEntity<Map<String, Object>> getResponse() {

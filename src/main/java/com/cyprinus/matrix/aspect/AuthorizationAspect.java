@@ -37,7 +37,7 @@ public class AuthorizationAspect {
         MatrixHttpServletRequestWrapper request = (MatrixHttpServletRequestWrapper) (args.get(0));
         if (request.getTokenInfo() == null) throw new ForbiddenException("请先登录！", true);
         String role = request.getTokenInfo().getRole();
-        Permission.Privilege privilege = ((MethodSignature) point.getSignature()).getMethod().getAnnotation(Permission.class).privilege();
+        Permission.Privilege privilege = ((MethodSignature) point.getSignature()).getMethod().getAnnotation(Permission.class).value();
         switch (privilege) {
             case NONE:
                 return;

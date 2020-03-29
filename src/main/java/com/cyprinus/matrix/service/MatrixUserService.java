@@ -6,6 +6,7 @@ import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
 import io.jsonwebtoken.Claims;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,15 @@ public class MatrixUserService {
         data.put("role", matrixUser.getRole());
         data.put("token", jwtUtil.sign(signData));
         return data;
+    }
+
+    public boolean createUser(MatrixUser targetUser) {
+        try {
+            matrixUserRepository.save(targetUser);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public MatrixTokenInfo verifyToken(String token) {

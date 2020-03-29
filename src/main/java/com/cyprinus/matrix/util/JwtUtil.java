@@ -52,11 +52,14 @@ public class JwtUtil {
     }
 
     public MatrixTokenInfo decode(String jwt) {
-        if (jwt.isEmpty()) return null;
-        Claims claims = Jwts.parser()
-                .setSigningKey(signKey)
-                .parseClaimsJws(jwt).getBody();
-        return new MatrixTokenInfo(claims);
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(signKey)
+                    .parseClaimsJws(jwt).getBody();
+            return new MatrixTokenInfo(claims);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

@@ -9,6 +9,6 @@ public @interface Permission {
 
     enum Privilege {NOT_TEACHER, NOT_STUDENT, NOT_MANAGER, MUST_STUDENT, MUST_TEACHER, MUST_MANAGER, NONE}
 
-    Privilege privilege() default Privilege.NONE;
+    Privilege value() default Privilege.NONE;
 
 }
