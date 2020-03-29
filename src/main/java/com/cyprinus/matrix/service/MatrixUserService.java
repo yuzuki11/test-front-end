@@ -3,6 +3,7 @@ package com.cyprinus.matrix.service;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
+import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ public class MatrixUserService {
         Map<String, String> signData = new HashMap<>();
         signData.put("userId", targetUser.getUserId());
         signData.put("todo", "login");
+        signData.put("role", matrixUser.getRole());
         Map<String, Object> data = new HashMap<>();
         data.put("userId", matrixUser.getUserId());
         data.put("role", matrixUser.getRole());
@@ -45,7 +47,7 @@ public class MatrixUserService {
         return data;
     }
 
-    public Claims verifyToken(String token) {
+    public MatrixTokenInfo verifyToken(String token) {
         return jwtUtil.decode(token);
     }
 

@@ -2,6 +2,7 @@ package com.cyprinus.matrix.controller;
 
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.service.MatrixUserService;
+import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
 import com.cyprinus.matrix.type.ResEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity login(@RequestBody MatrixUser matrixUser) {
+    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser matrixUser) {
         try {
             Map<String, Object> data = matrixUserService.loginCheck(matrixUser);
             return new ResEntity(HttpStatus.OK, "登录成功！", data).getResponse();
