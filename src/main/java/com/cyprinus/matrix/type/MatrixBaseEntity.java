@@ -12,6 +12,7 @@ public class MatrixBaseEntity implements Serializable {
     @Id
     @GenericGenerator(name = "MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
     @GeneratedValue(generator = "MongoLikeIdGenerator")
+    @Column(name = "_id", length = 26)
     private String _id;
 
     @JsonIgnore

@@ -19,7 +19,7 @@ public class MatrixUser extends MatrixBaseEntity {
     private String userId;
 
     //角色
-    @Column(name = "role", unique = true, nullable = false, length = 20)
+    @Column(name = "role", nullable = false, length = 20)
     private String role;
 
     //密码

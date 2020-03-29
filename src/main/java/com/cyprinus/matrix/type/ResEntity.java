@@ -1,6 +1,5 @@
 package com.cyprinus.matrix.type;
 
-import com.sun.istack.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -8,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResEntity {
+
     private ResponseEntity<Map<String, Object>> response;
 
     public ResEntity(HttpStatus status, String msg, Map<String, Object> data, Boolean fatal) {
@@ -55,4 +55,5 @@ public class ResEntity {
     public ResponseEntity<Map<String, Object>> getResponse() {
         return response;
     }
+
 }

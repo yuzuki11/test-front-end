@@ -1,6 +1,7 @@
 package com.cyprinus.matrix.service;
 
 import com.cyprinus.matrix.entity.MatrixUser;
+import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
@@ -48,8 +49,20 @@ public class MatrixUserService {
         return data;
     }
 
-    public boolean createUser(MatrixUser targetUser) {
+    public void createUser(MatrixUser targetUser) throws BadRequestException{
         try {
+            matrixUserRepository.save(targetUser);
+        } catch (Exception e) {
+            throw new BadRequestException();
+        }
+    }
+
+    public boolean putPwd(String _id, String newPwd, String oldPwd) {
+        try {
+            MatrixUser targetUser = matrixUserRepository.getOne(_id);
+            if (!targetUser.getPassword().equals(oldPwd))
+                return false;
+            targetUser.setPassword(newPwd);
             matrixUserRepository.save(targetUser);
             return true;
         } catch (Exception e) {
