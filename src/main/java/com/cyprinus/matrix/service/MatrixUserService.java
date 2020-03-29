@@ -3,19 +3,22 @@ package com.cyprinus.matrix.service;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
+import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
-import io.jsonwebtoken.Claims;
-import org.postgresql.util.PSQLException;
+import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+@SuppressWarnings("unchecked")
 @Service
 public class MatrixUserService {
 
@@ -25,11 +28,13 @@ public class MatrixUserService {
     private final
     JwtUtil jwtUtil;
 
+    private final ObjectUtil objectUtil;
 
     @Autowired
-    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil) {
+    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil) {
         this.matrixUserRepository = matrixUserRepository;
         this.jwtUtil = jwtUtil;
+        this.objectUtil = objectUtil;
     }
 
     public Map<String, Object> loginCheck(MatrixUser targetUser) throws EntityNotFoundException, ForbiddenException {
@@ -67,6 +72,29 @@ public class MatrixUserService {
             matrixUserRepository.save(targetUser);
         } catch (Exception e) {
             throw new BadRequestException(e);
+        }
+    }
+
+    public HashMap getProfile(String _id) throws ServerInternalException {
+        try {
+            MatrixUser targetUser = matrixUserRepository.getOne(_id);
+            HashMap userInfo = this.objectUtil.object2map(targetUser);
+            if ("manager".equals(targetUser.getRole()))
+                userInfo.remove("lessons");
+            return userInfo;
+
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
+
+    public ArrayList<MatrixUser> getManyProfiles(MatrixUser targetUser) throws ServerInternalException {
+        try {
+            targetUser.setPassword(null);
+            Example<MatrixUser> example = Example.of(targetUser);
+            return (ArrayList<MatrixUser>) matrixUserRepository.findAll(example);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
         }
     }
 

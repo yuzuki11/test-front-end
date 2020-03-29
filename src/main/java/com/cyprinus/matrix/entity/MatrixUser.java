@@ -1,17 +1,21 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.List;
+import java.util.Set;
 
 @Table(name = "MatrixUser")
 @Entity
 @SQLDelete(sql = "update matrix_user set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
+@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
 public class MatrixUser extends MatrixBaseEntity {
 
     //学号/工号
@@ -23,6 +27,7 @@ public class MatrixUser extends MatrixBaseEntity {
     private String role;
 
     //密码
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
@@ -44,34 +49,51 @@ public class MatrixUser extends MatrixBaseEntity {
     private String email;
 
     //所教课程
-    @OneToMany
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.EAGER)
     @Column(name = "lessons_t")
     //@ElementCollection(targetClass = Lesson.class)
-    private List<Lesson> lessons_t;
+    private Set<Lesson> lessons_t;
 
     //所选课程
-    @ManyToMany
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(name = "lessons_s")
     //@ElementCollection(targetClass = Lesson.class)
-    private List<Lesson> lessons_s;
+    private Set<Lesson> lessons_s;
+
+    public Set<Lesson> getLessons() {
+        if ("student".equals(this.role))
+            return this.lessons_s;
+        if ("teacher".equals(this.role))
+            return this.lessons_t;
+        else return null;
+    }
+
+    public void setLessons(Set<Lesson> lessons) {
+        this.lessons = lessons;
+    }
+
+    @Transient
+    private Set<Lesson> lessons;
 
     //@OneToMany
     //@JoinColumn(name = "teacher")
-    public List<Lesson> getLessons_t() {
+    public Set<Lesson> getLessons_t() {
         return lessons_t;
     }
 
-    public void setLessons_t(List<Lesson> lessons_t) {
+    public void setLessons_t(Set<Lesson> lessons_t) {
         this.lessons_t = lessons_t;
     }
 
     //@ManyToMany
     //@JoinColumn(name = "students")
-    public List<Lesson> getLessons_s() {
+    public Set<Lesson> getLessons_s() {
         return lessons_s;
     }
 
-    public void setLessons_s(List<Lesson> lessons_s) {
+    public void setLessons_s(Set<Lesson> lessons_s) {
         this.lessons_s = lessons_s;
     }
 
