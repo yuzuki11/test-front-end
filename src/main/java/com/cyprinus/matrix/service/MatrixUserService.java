@@ -10,13 +10,11 @@ import com.cyprinus.matrix.util.JwtUtil;
 import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 @Service
@@ -88,11 +86,12 @@ public class MatrixUserService {
         }
     }
 
-    public ArrayList<MatrixUser> getManyProfiles(MatrixUser targetUser) throws ServerInternalException {
+    public List<MatrixUser> getManyProfiles(MatrixUser targetUser, int page, int size) throws ServerInternalException {
         try {
+            PageRequest pageRequest = PageRequest.of(page - 1, size);
             targetUser.setPassword(null);
             Example<MatrixUser> example = Example.of(targetUser);
-            return (ArrayList<MatrixUser>) matrixUserRepository.findAll(example);
+            return matrixUserRepository.findAll(example, pageRequest).getContent();
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }

@@ -66,11 +66,11 @@ public class MatrixUserController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_MANAGER)
     @RequestMapping(path = "/teachers", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getAllTeachers(MatrixHttpServletRequestWrapper request) throws ServerInternalException {
+    public ResponseEntity getAllTeachers(MatrixHttpServletRequestWrapper request, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
         MatrixUser matrixUser = new MatrixUser();
         matrixUser.setRole("teacher");
         HashMap<String, Object> result = new HashMap<>();
-        result.put("teachers", matrixUserService.getManyProfiles(matrixUser));
+        result.put("teachers", matrixUserService.getManyProfiles(matrixUser, page, size));
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 
