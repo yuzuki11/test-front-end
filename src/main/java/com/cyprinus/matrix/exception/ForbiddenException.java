@@ -8,13 +8,13 @@ public class ForbiddenException extends Exception {
         return fatal;
     }
 
+    public ForbiddenException() {
+        super("没有操作权限！");
+    }
+
     public ForbiddenException(String message, Boolean fatal) {
         super(message);
         this.fatal = fatal;
-    }
-
-    public ForbiddenException() {
-        super();
     }
 
     public ForbiddenException(String message) {

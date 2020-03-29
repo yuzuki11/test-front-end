@@ -1,5 +1,6 @@
 package com.cyprinus.matrix.controller;
 
+import com.cyprinus.matrix.annotation.Permission;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.service.MatrixUserService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
