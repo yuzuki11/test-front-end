@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class MatrixTokenInfo implements Serializable {
 
+    private String _id;
+
     private String userId;
 
     private String todo;
@@ -22,6 +24,7 @@ public class MatrixTokenInfo implements Serializable {
         this.todo = claims.getSubject();
         this.userId = claims.getAudience();
         this.role = (String) claims.get("role");
+        this._id = (String) claims.get("_id");
     }
 
     public String getRole() {
@@ -62,6 +65,10 @@ public class MatrixTokenInfo implements Serializable {
 
     public void setSid(String sid) {
         this.sid = sid;
+    }
+
+    public String get_id() {
+        return _id;
     }
 
 }

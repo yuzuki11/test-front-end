@@ -43,4 +43,12 @@ public class MatrixUserController {
         return new ResEntity(HttpStatus.OK, "教师账户创建成功！").getResponse();
     }
 
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "/pwd", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws BadRequestException {
+        matrixUserService.putPwd(request.getTokenInfo().get_id(),content.get("password"),content.get("old"));
+        return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
+    }
+
 }

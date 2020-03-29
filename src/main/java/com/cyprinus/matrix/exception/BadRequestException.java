@@ -26,7 +26,7 @@ public class BadRequestException extends Exception {
     }
 
     public BadRequestException(Throwable cause) {
-        super(cause);
+        super("不合理的请求！", cause);
     }
 
     protected BadRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

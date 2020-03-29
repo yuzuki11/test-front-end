@@ -26,7 +26,7 @@ public class ForbiddenException extends Exception {
     }
 
     public ForbiddenException(Throwable cause) {
-        super(cause);
+        super("没有操作权限！", cause);
     }
 
     protected ForbiddenException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

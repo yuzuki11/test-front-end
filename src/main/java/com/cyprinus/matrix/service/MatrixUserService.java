@@ -42,6 +42,7 @@ public class MatrixUserService {
         signData.put("userId", targetUser.getUserId());
         signData.put("todo", "login");
         signData.put("role", matrixUser.getRole());
+        signData.put("_id", matrixUser.get_id());
         Map<String, Object> data = new HashMap<>();
         data.put("userId", matrixUser.getUserId());
         data.put("role", matrixUser.getRole());
@@ -49,24 +50,23 @@ public class MatrixUserService {
         return data;
     }
 
-    public void createUser(MatrixUser targetUser) throws BadRequestException{
+    public void createUser(MatrixUser targetUser) throws BadRequestException {
         try {
             matrixUserRepository.save(targetUser);
         } catch (Exception e) {
-            throw new BadRequestException();
+            throw new BadRequestException(e);
         }
     }
 
-    public boolean putPwd(String _id, String newPwd, String oldPwd) {
+    public void putPwd(String _id, String newPwd, String oldPwd) throws BadRequestException {
         try {
             MatrixUser targetUser = matrixUserRepository.getOne(_id);
             if (!targetUser.getPassword().equals(oldPwd))
-                return false;
+                throw new BadRequestException("旧密码错");
             targetUser.setPassword(newPwd);
             matrixUserRepository.save(targetUser);
-            return true;
         } catch (Exception e) {
-            return false;
+            throw new BadRequestException(e);
         }
     }
 
