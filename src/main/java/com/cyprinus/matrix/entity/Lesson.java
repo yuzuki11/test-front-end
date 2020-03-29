@@ -1,6 +1,8 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Table(name = "Lesson")
 @Entity
+@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class)
 @SQLDelete(sql = "update lesson set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
 public class Lesson extends MatrixBaseEntity {
