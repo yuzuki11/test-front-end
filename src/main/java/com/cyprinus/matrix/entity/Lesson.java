@@ -1,21 +1,21 @@
 package com.cyprinus.matrix.entity;
 
-import org.apache.catalina.User;
-import org.hibernate.annotations.GenericGenerator;
+import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.List;
 
 
 @Table(name = "Lesson")
 @Entity
-public class Lesson implements Serializable {
-
-    @Id
-    @GenericGenerator(name="MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
-    @GeneratedValue(generator = "MongoLikeIdGenerator")
-    private String _id;
+@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class)
+@SQLDelete(sql = "update lesson set deleted = 1 where _id = ?")
+@Where(clause = "deleted = 0")
+public class Lesson extends MatrixBaseEntity {
 
     //选课编号
     @Column(name = "lessonNum")
@@ -35,21 +35,15 @@ public class Lesson implements Serializable {
     @Column(name = "name")
     private String name;
 
+    //学生
     @ManyToMany
     @Column(name = "students")
     //@ElementCollection(targetClass = MatrixUser.class)
     private List<MatrixUser> students;
 
+    //学期
     @Column(name = "term")
     private String term;
-
-    public String get_id() {
-        return _id;
-    }
-
-    public void set_id(String _id) {
-        this._id = _id;
-    }
 
     public Integer getLessonNum() {
         return lessonNum;

@@ -1,19 +1,20 @@
 package com.cyprinus.matrix.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.cyprinus.matrix.type.MatrixBaseEntity;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.List;
 
 @Table(name = "Problem")
 @Entity
-public class Problem implements Serializable {
-
-    @Id
-    @GenericGenerator(name = "MongoLikeIdGenerator", strategy = "com.cyprinus.matrix.util.MongoLikeIdGenerator")
-    @GeneratedValue(generator = "MongoLikeIdGenerator")
-    private String _id;
+@SQLDelete(sql = "update problem set deleted = 1 where _id = ?")
+@Where(clause = "deleted = 0")
+public class Problem extends MatrixBaseEntity {
 
     //题目序号
     @Column(name = "num")
@@ -46,7 +47,7 @@ public class Problem implements Serializable {
     private Integer point;
 
     //被那些Quiz引用
-    @ManyToMany
+    @ManyToMany(mappedBy = "problems")
     @Column(name = "quizRefers")
     private List<Quiz> quizRefers;
 
@@ -56,9 +57,73 @@ public class Problem implements Serializable {
                 ref: 'Picture',
     }],*/
 
-    /*//标签
-    labels: [{
-        type: Schema.Types.ObjectId,
-                ref: 'Label',
-    }],*/
+    //标签
+    @ManyToMany(mappedBy = "problems")
+    @Column(name = "labels")
+    private List<Label> labels;
+
+    public String getNum() {
+        return num;
+    }
+
+    public void setNum(String num) {
+        this.num = num;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getProblemType() {
+        return problemType;
+    }
+
+    public void setProblemType(String problemType) {
+        this.problemType = problemType;
+    }
+
+    public Boolean getIfObjective() {
+        return ifObjective;
+    }
+
+    public void setIfObjective(Boolean ifObjective) {
+        this.ifObjective = ifObjective;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public Integer getPoint() {
+        return point;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
+    }
+
+    public List<Quiz> getQuizRefers() {
+        return quizRefers;
+    }
+
+    public void setQuizRefers(List<Quiz> quizRefers) {
+        this.quizRefers = quizRefers;
+    }
+
+    public List<Label> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<Label> labels) {
+        this.labels = labels;
+    }
+
 }

@@ -2,8 +2,12 @@ package com.cyprinus.matrix;
 
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
+import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.deploy.security.SelectableSecurityManager;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,15 +48,25 @@ class MatrixApplicationTests {
     }
 
     @Test
-    void  testJWT(){
-        Map<String,String> data = new HashMap<String,String>();
-        data.put("todo","test");
-        data.put("userId","test");
+    void testJWT() {
+        Map<String, String> data = new HashMap<>();
+        data.put("todo", "test");
+        data.put("userId", "test");
         String token = jwt.sign(data);
         System.out.println(token);
-        Map decoded = jwt.decode(token);
-        System.out.println(jwt.decode(token));
+        Claims decoded = jwt.decode(token).getRaw();
+        System.out.println(decoded);
         assert decoded.get("aud").equals("test") && decoded.get("sub").equals("test");
+    }
+
+    @Test
+    void testObjectMapper() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(matrixUserRepo.findAll().get(0));
+        System.out.println(json);
+        HashMap map = objectMapper.readValue(json, HashMap.class);
+        map.remove("password");
+        System.out.println(map);
     }
 
 }
