@@ -14,4 +14,8 @@ public class ObjectUtil {
     public HashMap object2map(Object object) throws JsonProcessingException {
         return objectMapper.readValue(objectMapper.writeValueAsString(object), HashMap.class);
     }
+
+    public <T> T map2object(HashMap map, Class<T> classType) throws JsonProcessingException {
+        return objectMapper.readValue(objectMapper.writeValueAsString(map), classType);
+    }
 }

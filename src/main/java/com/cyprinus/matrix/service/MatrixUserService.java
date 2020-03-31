@@ -8,6 +8,7 @@ import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
 import com.cyprinus.matrix.util.ObjectUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
@@ -35,8 +36,14 @@ public class MatrixUserService {
         this.objectUtil = objectUtil;
     }
 
-    public Map<String, Object> loginCheck(MatrixUser targetUser) throws EntityNotFoundException, ForbiddenException {
-        targetUser.setUserId(targetUser.getUserId());
+    public Map<String, Object> loginCheck(HashMap rawUser) throws EntityNotFoundException, ForbiddenException, ServerInternalException {
+        MatrixUser targetUser;
+        try {
+            targetUser = objectUtil.map2object(rawUser, MatrixUser.class);
+            targetUser.setPassword((String) rawUser.get("password"));
+        } catch (JsonProcessingException e) {
+            throw new ServerInternalException(e);
+        }
         Example<MatrixUser> example = Example.of(targetUser);
         MatrixUser matrixUser = matrixUserRepository.findOne(example).orElseThrow(() -> new EntityNotFoundException("用户名密码不匹配!"));
         if (!matrixUser.getPassword().equals(targetUser.getPassword()))
