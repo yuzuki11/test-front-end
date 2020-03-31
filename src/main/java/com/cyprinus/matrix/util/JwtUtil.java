@@ -1,6 +1,7 @@
 package com.cyprinus.matrix.util;
 
 import com.cyprinus.matrix.Config;
+import com.cyprinus.matrix.type.MatrixTokenInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -13,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -31,15 +33,16 @@ public class JwtUtil {
     private void generalKey() {
         String secretKey = config.getSecretKey();
         byte[] encodedKey = Base64.decodeBase64(secretKey);
-        signKey =  new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
+        signKey = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
     }
 
     public String sign(Map<String, String> data) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+        Map<String, Object> claims = new HashMap<>(data);
         JwtBuilder builder = Jwts.builder()
                 //.setId(id)                                      // JWT_ID
+                .setClaims(claims)                                // 自定义属性
                 .setAudience(data.get("userId"))                                // 接受者
-                //.setClaims(null)                                // 自定义属性
                 .setSubject(data.get("todo"))                                 // 主题
                 .setIssuer("")                                  // 签发者
                 .setIssuedAt(new Date())                        // 签发时间
@@ -48,10 +51,15 @@ public class JwtUtil {
         return builder.compact();
     }
 
-    public Claims decode(String jwt) {
-        return Jwts.parser()
-                .setSigningKey(signKey)
-                .parseClaimsJws(jwt).getBody();
+    public MatrixTokenInfo decode(String jwt) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(signKey)
+                    .parseClaimsJws(jwt).getBody();
+            return new MatrixTokenInfo(claims);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
