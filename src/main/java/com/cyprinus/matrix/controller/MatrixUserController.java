@@ -33,7 +33,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser matrixUser) throws ForbiddenException {
+    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException {
         Map<String, Object> data = matrixUserService.loginCheck(matrixUser);
         return new ResEntity(HttpStatus.OK, "登录成功！", data).getResponse();
     }

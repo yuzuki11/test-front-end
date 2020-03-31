@@ -29,7 +29,7 @@ public class MatrixUser extends MatrixBaseEntity {
     private String role;
 
     //密码
-    //@JsonIgnore TODO: 解决由此产生的密码泄露问题
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
