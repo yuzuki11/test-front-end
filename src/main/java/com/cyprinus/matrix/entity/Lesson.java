@@ -2,6 +2,7 @@ package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -27,6 +28,7 @@ public class Lesson extends MatrixBaseEntity {
 
 
     //任课教师
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "teacher")
     private MatrixUser teacher;
@@ -36,6 +38,7 @@ public class Lesson extends MatrixBaseEntity {
     private String name;
 
     //学生
+    @JsonIgnore
     @ManyToMany
     @Column(name = "students")
     //@ElementCollection(targetClass = MatrixUser.class)
