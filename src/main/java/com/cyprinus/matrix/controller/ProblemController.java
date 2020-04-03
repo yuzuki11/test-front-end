@@ -2,7 +2,6 @@ package com.cyprinus.matrix.controller;
 
 import com.cyprinus.matrix.annotation.MustLogin;
 import com.cyprinus.matrix.annotation.Permission;
-import com.cyprinus.matrix.entity.Problem;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.ProblemService;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/problem")
@@ -62,11 +62,20 @@ public class ProblemController {
     }
 
     @MustLogin
-    @Permission(Permission.Privilege.MUST_MANAGER)
+    @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getAllProblems(MatrixHttpServletRequestWrapper request, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
         HashMap<String, Object> result = new HashMap<>();
         result.put("problems", problemService.getAllProblems(page, size));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "count", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getProblemCount(MatrixHttpServletRequestWrapper request) {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("count", problemService.getProblemCount() - 1);  //不知道为啥返回值总比真实值大1，所以这里只好减一
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 

@@ -109,5 +109,9 @@ public class ProblemService {
         }
     }
 
+    public long getProblemCount(){
+        return problemRepository.count();
+    }
+
 
 }
