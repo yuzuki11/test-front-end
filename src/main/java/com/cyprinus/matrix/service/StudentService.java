@@ -48,10 +48,7 @@ public class StudentService {
     public List<Quiz> getAllQuiz(String lessonId) throws ServerInternalException {
         try {
             Lesson lesson = lessonRepository.getOne(lessonId);
-            Quiz targetQuiz = new Quiz();
-            targetQuiz.setLesson(lesson);
-            Example<Quiz> example = Example.of(targetQuiz);
-            return quizRepository.findAll(example);
+            return quizRepository.findByLessonIs(lesson);
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }
