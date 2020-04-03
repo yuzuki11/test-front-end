@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+//TODO 有一些Service层异常无法被捕获，后期要重构异常处理机制，为防止出现合并冲突，应在其他模块基本完成之后处理本TODO
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionController {
 

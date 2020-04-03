@@ -8,9 +8,7 @@ import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.LabelRepository;
 import com.cyprinus.matrix.repository.ProblemRepository;
 import com.cyprinus.matrix.util.ObjectUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -71,7 +69,14 @@ public class ProblemService {
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }
+    }
 
+    public Problem getProblemById(String problemId) throws ServerInternalException {
+        try {
+            return problemRepository.getOne(problemId);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
     }
 
     public List<Problem> searchProblem(HashMap<String, Object> condition) throws ServerInternalException {

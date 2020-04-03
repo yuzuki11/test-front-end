@@ -52,6 +52,14 @@ public class ProblemController {
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/{problemId}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getProblemById(MatrixHttpServletRequestWrapper request, @PathVariable String problemId) throws ServerInternalException {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("problem", problemService.getProblemById(problemId));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
 
 
 }

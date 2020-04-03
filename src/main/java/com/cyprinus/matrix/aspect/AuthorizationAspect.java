@@ -16,11 +16,11 @@ import java.util.List;
 @Component
 public class AuthorizationAspect {
 
-    @Pointcut("execution(* com.cyprinus.matrix.controller.MatrixUserController.*(..)) && @annotation(com.cyprinus.matrix.annotation.MustLogin)")
+    @Pointcut("execution(* com.cyprinus.matrix.controller.*.*(..)) && @annotation(com.cyprinus.matrix.annotation.MustLogin)")
     private void mustLoginPointCut() {
     }
 
-    @Pointcut("execution(* com.cyprinus.matrix.controller.MatrixUserController.*(..)) && @annotation(com.cyprinus.matrix.annotation.Permission)")
+    @Pointcut("execution(* com.cyprinus.matrix.controller.*.*(..)) && @annotation(com.cyprinus.matrix.annotation.Permission)")
     private void checkPrivilegePointCut() {
     }
 
