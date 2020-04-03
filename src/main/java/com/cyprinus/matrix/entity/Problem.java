@@ -1,6 +1,10 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -49,6 +53,7 @@ public class Problem extends MatrixBaseEntity {
     //被那些Quiz引用
     @ManyToMany(mappedBy = "problems")
     @Column(name = "quizRefers")
+    @JsonBackReference
     private List<Quiz> quizRefers;
 
     /*//答案图片
