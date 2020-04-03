@@ -88,6 +88,14 @@ public class Quiz extends MatrixBaseEntity {
         this.title = title;
     }
 
+    public List<Label> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<Label> labels) {
+        this.labels = labels;
+    }
+
     public Integer[] getPoints() {
         return points;
     }

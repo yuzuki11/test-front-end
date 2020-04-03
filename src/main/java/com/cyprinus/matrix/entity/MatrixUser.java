@@ -154,4 +154,21 @@ public class MatrixUser extends MatrixBaseEntity {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    //重写equals，便于使用List的contains方法
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        final MatrixUser other = (MatrixUser) obj;
+        if (userId == null) {
+            if (other.getUserId() != null)
+                return false;
+        } else if (!userId.equals(other.getUserId()))
+            return false;
+        return true;
+    }
+
 }

@@ -5,6 +5,7 @@ import com.cyprinus.matrix.annotation.Permission;
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.exception.BadRequestException;
+import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.StudentService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
@@ -39,9 +40,18 @@ public class StudentController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/quiz/{lessonId}/all", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getAllQuiz(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException {
+    public ResponseEntity getAllQuizzes(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException, ForbiddenException {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("quizzes", studentService.getAllQuiz(lessonId));
+        data.put("quizzes", studentService.getAllQuizzes(request.getTokenInfo().get_id(), lessonId));
+        return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_STUDENT)
+    @RequestMapping(path = "/quiz/{lessonId}/{quizId}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getQuizInfo(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @PathVariable String quizId) throws ServerInternalException {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("quiz", studentService.getQuizInfo(request.getTokenInfo().get_id(), lessonId, quizId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
     }
 }
