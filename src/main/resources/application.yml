@@ -26,6 +26,10 @@ spring:
 
 matrix:
   secretKey: dGVzdA==
+  OSSUrl: http://127.0.0.1:9001
+  OSSSecretKey: minio123
+  OSSAccessKey: minio
+  ImagePathBase: http://127.0.0.1:9001/matrix/
 
 server:
   tomcat:

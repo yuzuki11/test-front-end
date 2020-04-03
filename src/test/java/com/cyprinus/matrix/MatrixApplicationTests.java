@@ -2,16 +2,21 @@ package com.cyprinus.matrix;
 
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
-import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
+import com.cyprinus.matrix.util.OSSUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.deploy.security.SelectableSecurityManager;
 import io.jsonwebtoken.Claims;
+import io.minio.MinioClient;
+import io.minio.errors.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +25,9 @@ class MatrixApplicationTests {
 
     @Autowired
     private Config config;
+
+    @Autowired
+    private OSSUtil ossUtil;
 
     @Autowired
     private MatrixUserRepository matrixUserRepo;
@@ -67,6 +75,14 @@ class MatrixApplicationTests {
         HashMap map = objectMapper.readValue(json, HashMap.class);
         map.remove("password");
         System.out.println(map);
+    }
+
+    @Test
+    void testSSOUtil() throws InvalidPortException, InvalidEndpointException, IOException, InvalidKeyException, NoSuchAlgorithmException, InsufficientDataException, InternalException, NoResponseException, InvalidBucketNameException, XmlPullParserException, ErrorResponseException, InvalidArgumentException {
+        System.out.println(config.getOSSUrl());
+        MinioClient minioClient = new MinioClient(config.getOSSUrl(),config.getOSSAccessKey(),config.getOSSSecretKey());
+        minioClient.putObject("matrix","test","38321534.jpg");
+        System.out.println(minioClient.bucketExists("matrix"));
     }
 
 }
