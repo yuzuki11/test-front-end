@@ -64,10 +64,27 @@ public class ProblemService {
         }
     }
 
-    public List<Problem> getProblem(Problem problem) throws ServerInternalException {
+    public List<Problem> getProblemByNum(String problemNum) throws ServerInternalException {
         try {
-            Example<Problem> example = Example.of(problem);
-            return problemRepository.findAll(example);
+
+            return problemRepository.findAllByNumIs(problemNum);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+
+    }
+
+    public List<Problem> searchProblem(HashMap<String, Object> condition) throws ServerInternalException {
+        try {
+            List<String> problemType = (List<String>) condition.get("problemTypes");
+            List<Label> labels = labelRepository.findAllById((List<String>) condition.get("labels"));
+            String query = "%" + condition.get("q") + "%";
+            if(labels.size()==0 || problemType.size()==0) {
+                if(labels.size() != 0) return problemRepository.findAllByContentLikeAndLabelsIn(query,labels);
+                if(problemType.size() != 0) return problemRepository.findAllByContentLikeAndProblemTypeIn(query,problemType);
+                return problemRepository.findAllByContentLike(query);
+            }
+            return problemRepository.findAllByContentLikeAndLabelsInAndProblemTypeIn(query, labels, problemType);
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }

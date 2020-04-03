@@ -8,7 +8,6 @@ import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.ProblemService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
 import com.cyprinus.matrix.type.ResEntity;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +38,20 @@ public class ProblemController {
     @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/num/{num}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getProblemByNum(MatrixHttpServletRequestWrapper request, @PathVariable String num) throws ServerInternalException {
-        Problem problem = new Problem();
-        problem.setNum(num);
         HashMap<String, Object> result = new HashMap<>();
-        result.put("problems", problemService.getProblem(problem));
+        result.put("problems", problemService.getProblemByNum(num));
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/search", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity searchProblem(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> condition) throws ServerInternalException {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("problems", problemService.searchProblem(condition));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+
 
 }
