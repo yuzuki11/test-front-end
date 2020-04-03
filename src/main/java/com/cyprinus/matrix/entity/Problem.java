@@ -1,6 +1,10 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -12,8 +16,10 @@ import java.util.List;
 
 @Table(name = "Problem")
 @Entity
+@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class)
 @SQLDelete(sql = "update problem set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
+@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
 public class Problem extends MatrixBaseEntity {
 
     //题目序号
@@ -47,6 +53,7 @@ public class Problem extends MatrixBaseEntity {
     private Integer point;
 
     //被那些Quiz引用
+    @JsonIgnore
     @ManyToMany(mappedBy = "problems")
     @Column(name = "quizRefers")
     private List<Quiz> quizRefers;

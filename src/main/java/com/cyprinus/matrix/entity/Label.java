@@ -1,6 +1,7 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -20,6 +21,8 @@ public class Label extends MatrixBaseEntity {
     private boolean base;
 
     //科目缩写
+    @JsonIgnore
+    @Column(name = "abbr")
     private  String abbr;
 
     //标签名称
@@ -27,11 +30,13 @@ public class Label extends MatrixBaseEntity {
     private String name;
 
     //包含的问题
+    @JsonIgnore
     @ManyToMany
     @Column(name = "problems")
     private List<Problem> problems;
 
     //包含的quiz
+    @JsonIgnore
     @ManyToMany
     @Column(name = "quizzes")
     private List<Quiz>quizzes;
@@ -66,6 +71,10 @@ public class Label extends MatrixBaseEntity {
 
     public void setProblems(List<Problem> problems) {
         this.problems = problems;
+    }
+
+    public void addProblem(Problem problem) {
+        this.problems.add(problem);
     }
 
     public List<Quiz> getQuizzes() {
