@@ -4,11 +4,13 @@ package com.cyprinus.matrix.service;
 import com.cyprinus.matrix.entity.Label;
 import com.cyprinus.matrix.entity.Problem;
 import com.cyprinus.matrix.exception.BadRequestException;
+import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.LabelRepository;
 import com.cyprinus.matrix.repository.ProblemRepository;
 import com.cyprinus.matrix.util.ObjectUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -36,7 +38,7 @@ public class ProblemService {
     }
 
     @Transactional(rollbackOn = Throwable.class)
-    public void createProblem(HashMap<String, Object> content) throws BadRequestException, JsonProcessingException {
+    public void createProblem(HashMap<String, Object> content) throws BadRequestException {
         try {
             content.put("labels", labelRepository.findAllById((List<String>) content.get("labels")));
             int baseNum = 0;
@@ -57,9 +59,19 @@ public class ProblemService {
             problem.setLabels((List<Label>) content.get("labels"));
             problemRepository.save(problem);
         } catch (Exception e) {
-            if (e instanceof BadRequestException) throw e;
+            if (e instanceof BadRequestException) throw new BadRequestException(e.getMessage());
             throw new BadRequestException(e);
         }
+    }
+
+    public List<Problem> getProblem(Problem problem) throws ServerInternalException {
+        try {
+            Example<Problem> example = Example.of(problem);
+            return problemRepository.findAll(example);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+
     }
 
 
