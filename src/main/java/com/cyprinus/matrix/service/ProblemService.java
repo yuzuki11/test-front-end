@@ -2,6 +2,7 @@ package com.cyprinus.matrix.service;
 
 
 import com.cyprinus.matrix.entity.Label;
+import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.entity.Problem;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ServerInternalException;
@@ -9,6 +10,8 @@ import com.cyprinus.matrix.repository.LabelRepository;
 import com.cyprinus.matrix.repository.ProblemRepository;
 import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -84,9 +87,10 @@ public class ProblemService {
             List<String> problemType = (List<String>) condition.get("problemTypes");
             List<Label> labels = labelRepository.findAllById((List<String>) condition.get("labels"));
             String query = "%" + condition.get("q") + "%";
-            if(labels.size()==0 || problemType.size()==0) {
-                if(labels.size() != 0) return problemRepository.findAllByContentLikeAndLabelsIn(query,labels);
-                if(problemType.size() != 0) return problemRepository.findAllByContentLikeAndProblemTypeIn(query,problemType);
+            if (labels.size() == 0 || problemType.size() == 0) {
+                if (labels.size() != 0) return problemRepository.findAllByContentLikeAndLabelsIn(query, labels);
+                if (problemType.size() != 0)
+                    return problemRepository.findAllByContentLikeAndProblemTypeIn(query, problemType);
                 return problemRepository.findAllByContentLike(query);
             }
             return problemRepository.findAllByContentLikeAndLabelsInAndProblemTypeIn(query, labels, problemType);
@@ -94,6 +98,15 @@ public class ProblemService {
             throw new ServerInternalException(e);
         }
 
+    }
+
+    public List<Problem> getAllProblems(int page, int size) throws ServerInternalException {
+        try {
+            PageRequest pageRequest = PageRequest.of(page - 1, size);
+            return problemRepository.findAll(pageRequest).getContent();
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
     }
 
 

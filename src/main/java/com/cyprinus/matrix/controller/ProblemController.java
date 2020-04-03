@@ -61,5 +61,13 @@ public class ProblemController {
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getAllProblems(MatrixHttpServletRequestWrapper request, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("problems", problemService.getAllProblems(page, size));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
 
 }
