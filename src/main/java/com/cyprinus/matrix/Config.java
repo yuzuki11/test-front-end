@@ -13,6 +13,46 @@ public class Config {
 
     private String secretKey;
 
+    private String OSSUrl;
+
+    private String OSSSecretKey;
+
+    private String OSSAccessKey;
+
+    private String ImagePathBase;
+
+    public String getImagePathBase() {
+        return ImagePathBase;
+    }
+
+    public void setImagePathBase(String imagePathBase) {
+        ImagePathBase = imagePathBase;
+    }
+
+    public String getOSSAccessKey() {
+        return OSSAccessKey;
+    }
+
+    public void setOSSAccessKey(String OSSAccessKey) {
+        this.OSSAccessKey = OSSAccessKey;
+    }
+
+    public void setOSSUrl(String OSSUrl) {
+        this.OSSUrl = OSSUrl;
+    }
+
+    public void setOSSSecretKey(String OSSSecretKey) {
+        this.OSSSecretKey = OSSSecretKey;
+    }
+
+    public String getOSSUrl() {
+        return OSSUrl;
+    }
+
+    public String getOSSSecretKey() {
+        return OSSSecretKey;
+    }
+
     public String getSecretKey() {
         return secretKey;
     }
