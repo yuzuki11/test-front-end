@@ -68,6 +68,10 @@ public class Label extends MatrixBaseEntity {
         this.problems = problems;
     }
 
+    public void addProblem(Problem problem) {
+        this.problems.add(problem);
+    }
+
     public List<Quiz> getQuizzes() {
         return quizzes;
     }
