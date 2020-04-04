@@ -30,7 +30,7 @@ public class LabelController {
 
     @MustLogin
     @Permission(Permission.Privilege.NOT_STUDENT)
-    @RequestMapping(path = "/", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(path = "", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity createLabel(MatrixHttpServletRequestWrapper matrixHttpServletRequestWrapper, @RequestBody Label label) throws ServerInternalException, ForbiddenException, BadRequestException {
         if (label.isBase() && !"manager".equals(matrixHttpServletRequestWrapper.getTokenInfo().getRole()))
             throw new ForbiddenException("只有管理员可以创建基标签！");
