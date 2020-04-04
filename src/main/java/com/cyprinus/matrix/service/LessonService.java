@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -77,11 +78,19 @@ public class LessonService {
             Lesson lesson = lessonRepository.getOne(lessonId);
             if (_id != null && !lesson.getTeacher().get_id().equals(_id))
                 throw new ForbiddenException("非本门课任课教师！");
-            objectUtil.copyNullProperties(content,lesson);
+            objectUtil.copyNullProperties(content, lesson);
             lessonRepository.save(lesson);
         } catch (Exception e) {
             if (e instanceof ForbiddenException) throw e;
             throw new BadRequestException(e);
+        }
+    }
+
+    public List<Lesson> getAllLesson() throws ServerInternalException {
+        try {
+            return lessonRepository.findAll();
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
         }
     }
 

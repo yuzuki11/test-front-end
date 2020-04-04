@@ -44,6 +44,15 @@ public class LessonController {
     }
 
     @MustLogin
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getAllLesson(MatrixHttpServletRequestWrapper request) throws ServerInternalException {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("lessons", lessonService.getAllLesson());
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+    @MustLogin
     @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/{lessonId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity updateLesson(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @RequestBody Lesson content) throws BadRequestException, ForbiddenException {
