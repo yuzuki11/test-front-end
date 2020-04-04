@@ -1,6 +1,7 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.*;
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import org.hibernate.annotations.*;
 
@@ -22,11 +23,13 @@ public class Quiz extends MatrixBaseEntity {
 
     //对应课程id
     @ManyToOne
+    @JsonBackReference
     private Lesson lesson;
 
     //问题
     @ManyToMany
     @Column(name = "problems")
+    @JsonManagedReference
     //@ElementCollection(targetClass = Problem.class)
     private List<Problem> problems;
 
@@ -42,7 +45,7 @@ public class Quiz extends MatrixBaseEntity {
     //问题分值
     @Column(name = "points", columnDefinition = "Int[]")
     @Type(type = "int-array")
-    private List<Integer> points;
+    private Integer[] points;
 
     //开始时间
     @Column(name = "startTime")
@@ -85,11 +88,19 @@ public class Quiz extends MatrixBaseEntity {
         this.title = title;
     }
 
-    public List<Integer> getPoints() {
+    public List<Label> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<Label> labels) {
+        this.labels = labels;
+    }
+
+    public Integer[] getPoints() {
         return points;
     }
 
-    public void setPoints(List<Integer> points) {
+    public void setPoints(Integer[] points) {
         this.points = points;
     }
 
