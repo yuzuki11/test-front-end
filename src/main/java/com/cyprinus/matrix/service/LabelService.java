@@ -6,9 +6,12 @@ import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.LabelRepository;
 import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 
 
 @Service
@@ -31,6 +34,15 @@ public class LabelService {
             return label;
         } catch (Exception e) {
             if(e instanceof BadRequestException) throw e;
+            throw new ServerInternalException(e);
+        }
+    }
+
+    public List<Label> getAllLabels(int page, int size) throws ServerInternalException {
+        try {
+            PageRequest pageRequest = PageRequest.of(page - 1, size);
+            return labelRepository.findAll(pageRequest).getContent();
+        } catch (Exception e) {
             throw new ServerInternalException(e);
         }
     }

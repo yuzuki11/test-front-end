@@ -13,10 +13,7 @@ import com.cyprinus.matrix.type.ResEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -40,6 +37,15 @@ public class LabelController {
         HashMap<String, Object> result = new HashMap<>();
         result.put("label", labelService.createLabel(label));
         return new ResEntity(HttpStatus.OK, "创建成功！", result).getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getAllLabels(MatrixHttpServletRequestWrapper request, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("labels", labelService.getAllLabels(page, size));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 
 }
