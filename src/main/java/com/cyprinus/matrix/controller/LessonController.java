@@ -4,6 +4,7 @@ import com.cyprinus.matrix.annotation.MustLogin;
 import com.cyprinus.matrix.annotation.Permission;
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.exception.BadRequestException;
+import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.LessonService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
@@ -39,6 +40,17 @@ public class LessonController {
     @RequestMapping(path = "/teacher/{lessonId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity updateTeacher(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @RequestBody HashMap<String, String> content) throws ServerInternalException, BadRequestException {
         lessonService.updateTeacher(content.get("newTeacher"), lessonId);
+        return new ResEntity(HttpStatus.OK, "变更成功！").getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/{lessonId}", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity updateLesson(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @RequestBody Lesson content) throws BadRequestException, ForbiddenException {
+        if (!request.getTokenInfo().getRole().equals("manager"))
+            lessonService.updateLesson(content, lessonId, request.getTokenInfo().get_id());
+        else
+            lessonService.updateLesson(content, lessonId, null);
         return new ResEntity(HttpStatus.OK, "变更成功！").getResponse();
     }
 
