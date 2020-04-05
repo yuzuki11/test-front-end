@@ -40,21 +40,19 @@ public class StudentService {
     public Set<Lesson> getLessons(String _id) throws ServerInternalException {
         try {
             MatrixUser student = userRepository.getOne(_id);
-            Set<Lesson> lessons = student.getLessons_s();
-            return lessons;
+            return student.getLessons_s();
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }
     }
 
-    public List<QuizDTO> getAllQuizzes(String _id, String lessonId) throws ServerInternalException, ForbiddenException {
+    public List<QuizDTO> getAllQuizzes(String _id, String lessonId) throws ServerInternalException {
         try {
             MatrixUser stu = userRepository.getOne(_id);
             Lesson lesson = lessonRepository.getOne(lessonId);
             if (!lesson.getStudents().contains(stu))
                 throw new ForbiddenException("你不是这门课的学生！");
-            List<QuizDTO> quizzes = quizRepository.findByLessonIs(lesson);
-            return quizzes;
+            return quizRepository.findByLessonIs(lesson);
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }
@@ -66,7 +64,7 @@ public class StudentService {
             Lesson lesson = lessonRepository.getOne(lessonId);
             if (!lesson.getStudents().contains(stu))
                 throw new ForbiddenException("你不是这门课的学生！");
-            return quizRepository.findBy_id(quizId);
+            return quizRepository.getOne(quizId);
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }
