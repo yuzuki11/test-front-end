@@ -73,4 +73,11 @@ public class MatrixUserController {
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 
+    @MustLogin
+    @RequestMapping(path = "/me", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity putSelfProfile(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser content) throws ServerInternalException {
+        matrixUserService.putSelfProfile(content, request.getTokenInfo().get_id());
+        return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
+    }
+
 }

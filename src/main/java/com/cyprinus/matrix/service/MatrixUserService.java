@@ -108,4 +108,18 @@ public class MatrixUserService {
         return jwtUtil.decode(token);
     }
 
+    public void putSelfProfile(MatrixUser content, String _id) throws ServerInternalException {
+        try {
+            content.setRole(null);
+            content.setPassword(null);
+            content.setUserId(null);
+            MatrixUser user = matrixUserRepository.getOne(_id);
+            objectUtil.copyNullProperties(content, user);
+            matrixUserRepository.save(user);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+
+    }
+
 }
