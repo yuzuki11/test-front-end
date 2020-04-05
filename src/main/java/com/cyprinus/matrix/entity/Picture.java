@@ -28,8 +28,41 @@ public class Picture extends MatrixBaseEntity {
     @Column(name = "ref")
     private int ref = 0;
 
+    //图片md5
     @Column(name = "hash")
     private String hash;
+
+    //图片拥有者（如problem、submit的id）
+    @Column(name = "ownedBy", length = 25)
+    private String ownedBy;
+
+    //图片用途("avatar"、"problem"、"submit")三个取值
+    @Column(name = "usage", length = 10)
+    private String usage;
+
+    public String getUsage() {
+        return usage;
+    }
+
+    public void setUsage(String usage) {
+        this.usage = usage;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public String getOwnedBy() {
+        return ownedBy;
+    }
+
+    public void setOwnedBy(String ownedBy) {
+        this.ownedBy = ownedBy;
+    }
 
     public void addRef() {
         ref++;
