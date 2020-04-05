@@ -88,4 +88,12 @@ public class MatrixUserController {
         return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
     }
 
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "/admin/teacher/{userId}", method = RequestMethod.DELETE, produces = "application/json")
+    public ResponseEntity deleteTeacher(MatrixHttpServletRequestWrapper request, @PathVariable String userId) throws ServerInternalException, BadRequestException {
+        matrixUserService.deleteTeacher(userId);
+        return new ResEntity(HttpStatus.OK, "删除成功！").getResponse();
+    }
+
 }

@@ -122,4 +122,17 @@ public class MatrixUserService {
 
     }
 
+    public void deleteTeacher(String _id) throws BadRequestException, ServerInternalException {
+        try {
+            MatrixUser user = matrixUserRepository.getOne(_id);
+            if (!Objects.equals(user.getRole(), "teacher")) throw new BadRequestException("非法删除对象！");
+            if (user.getLessons().size() > 0) throw new BadRequestException("非法删除对象！");
+            matrixUserRepository.delete(user);
+        } catch (Exception e) {
+            if (e instanceof BadRequestException) throw e;
+            throw  new ServerInternalException(e);
+        }
+
+    }
+
 }
