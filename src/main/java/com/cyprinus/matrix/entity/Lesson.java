@@ -13,7 +13,7 @@ import java.util.List;
 
 @Table(name = "Lesson")
 @Entity
-@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @SQLDelete(sql = "update lesson set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
 public class Lesson extends MatrixBaseEntity {
@@ -88,6 +88,14 @@ public class Lesson extends MatrixBaseEntity {
     //@JoinColumn(name = "lessons_s")
     public void setStudents(List<MatrixUser> students) {
         this.students = students;
+    }
+
+    public void addStudent(MatrixUser student) {
+        this.students.add(student);
+    }
+
+    public void removeStudent(MatrixUser student) {
+        this.students.remove(student);
     }
 
     public String getTerm() {

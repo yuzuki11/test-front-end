@@ -1,9 +1,11 @@
 package com.cyprinus.matrix.service;
 
+import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.exception.ServerInternalException;
+import com.cyprinus.matrix.repository.LessonRepository;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.JwtUtil;
@@ -15,11 +17,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
 @Service
 public class MatrixUserService {
+
+    private final
+    LessonRepository lessonRepository;
 
     private final
     MatrixUserRepository matrixUserRepository;
@@ -30,10 +36,11 @@ public class MatrixUserService {
     private final ObjectUtil objectUtil;
 
     @Autowired
-    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil) {
+    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository) {
         this.matrixUserRepository = matrixUserRepository;
         this.jwtUtil = jwtUtil;
         this.objectUtil = objectUtil;
+        this.lessonRepository = lessonRepository;
     }
 
     public Map<String, Object> loginCheck(HashMap rawUser) throws EntityNotFoundException, ForbiddenException, ServerInternalException {
@@ -132,6 +139,25 @@ public class MatrixUserService {
             if (e instanceof BadRequestException) throw e;
             throw  new ServerInternalException(e);
         }
+
+    }
+
+
+    @Transactional(rollbackOn = Throwable.class)
+    public void removeStudentFromLesson(String lessonId, String studentId, String operatorId) throws ServerInternalException, ForbiddenException {
+        try {
+            MatrixUser student = matrixUserRepository.getOne(studentId);
+            Lesson lesson = lessonRepository.getOne(lessonId);
+            if (!Objects.equals(lesson.getTeacher().get_id(), operatorId)) throw new ForbiddenException();
+            lesson.removeStudent(student);
+            student.removeLesson(lesson);
+            matrixUserRepository.save(student);
+            lessonRepository.save(lesson);
+        }catch (Exception e){
+            if(e instanceof ForbiddenException) throw e;
+            throw new ServerInternalException(e);
+        }
+
 
     }
 
