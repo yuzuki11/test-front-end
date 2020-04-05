@@ -76,7 +76,15 @@ public class MatrixUserController {
     @MustLogin
     @RequestMapping(path = "/me", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity putSelfProfile(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser content) throws ServerInternalException {
-        matrixUserService.putSelfProfile(content, request.getTokenInfo().get_id());
+        matrixUserService.putProfile(content, request.getTokenInfo().get_id());
+        return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/{userId}", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity putStudentProfile(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser content, @PathVariable String userId) throws ServerInternalException {
+        matrixUserService.putProfile(content, userId);
         return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
     }
 

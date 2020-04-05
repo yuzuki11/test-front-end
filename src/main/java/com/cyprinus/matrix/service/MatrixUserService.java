@@ -108,7 +108,7 @@ public class MatrixUserService {
         return jwtUtil.decode(token);
     }
 
-    public void putSelfProfile(MatrixUser content, String _id) throws ServerInternalException {
+    public void putProfile(MatrixUser content, String _id) throws ServerInternalException {
         try {
             content.setRole(null);
             content.setPassword(null);
