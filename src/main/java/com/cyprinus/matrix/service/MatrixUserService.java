@@ -69,6 +69,7 @@ public class MatrixUserService {
 
     public void createUser(MatrixUser targetUser) throws BadRequestException {
         try {
+            targetUser.setPassword(BCrypt.hashpw(targetUser.getUserId(), BCrypt.gensalt()));
             matrixUserRepository.save(targetUser);
         } catch (Exception e) {
             throw new BadRequestException(e);
@@ -159,6 +160,22 @@ public class MatrixUserService {
         }
 
 
+    }
+
+    @Transactional(rollbackOn = Throwable.class)
+    public void addStudents(String lessonId, String operatorId, List<HashMap> students) throws ServerInternalException {
+        try {
+            Lesson lesson = lessonRepository.getOne(lessonId);
+            if (!Objects.equals(lesson.getTeacher().get_id(), operatorId)) throw new ForbiddenException();
+            for (HashMap item : students) {
+                MatrixUser student = objectUtil.map2object(item, MatrixUser.class);
+                student.setRole("student");
+                student.setPassword(BCrypt.hashpw(student.getUserId(), BCrypt.gensalt()));
+                matrixUserRepository.save(student);
+            }
+        } catch (Throwable e) {
+            throw new ServerInternalException(e);
+        }
     }
 
 }

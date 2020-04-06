@@ -1,10 +1,7 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -64,6 +61,7 @@ public class MatrixUser extends MatrixBaseEntity {
     //@ElementCollection(targetClass = Lesson.class)
     private Set<Lesson> lessons_s;
 
+    @JsonProperty
     public Set<Lesson> getLessons() {
         if ("student".equals(this.role))
             return this.lessons_s;
