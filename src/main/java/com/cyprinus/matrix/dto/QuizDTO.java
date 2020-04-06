@@ -13,8 +13,6 @@ public interface QuizDTO {
 
     public List<Label> getLabels();
 
-    public Integer[] getPoints();
-
     public Date getStartTime();
 
     public Date getDeadline();

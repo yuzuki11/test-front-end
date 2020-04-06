@@ -19,17 +19,17 @@ import java.util.List;
 @Entity
 @SQLDelete(sql = "update quiz set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
+@JsonIgnoreProperties(value = { "hibernateLazyInitializer", "handler" })
 public class Quiz extends MatrixBaseEntity {
 
     //对应课程id
     @ManyToOne
-    @JsonBackReference
+    @JsonIgnore
     private Lesson lesson;
 
     //问题
     @ManyToMany
     @Column(name = "problems")
-    @JsonManagedReference
     //@ElementCollection(targetClass = Problem.class)
     private List<Problem> problems;
 

@@ -72,7 +72,7 @@ public class ProblemService {
             }
             if (baseNum < 1) throw new BadRequestException("至少应有一个基标签！");
             labelRepository.saveAll(labels);
-            problem.setNum(baseLabel.getAbbr() + String.format("%4d", baseLabel.getProblems().size()).replace(" ", "0"));
+            problem.setNum(baseLabel.getAbbr() + String.format("%04d", baseLabel.getProblems().size()));
             problem.setLabels(labels);
             problemRepository.save(problem);
         } catch (Exception e) {
