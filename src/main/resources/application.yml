@@ -9,7 +9,7 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://192.168.99.100/matrix
+    url: jdbc:postgresql://127.0.0.1/matrix
     username: postgres
     password: test
     driver-class-name: org.postgresql.Driver
@@ -26,10 +26,10 @@ spring:
 
 matrix:
   secretKey: dGVzdA==
-  OSSUrl: http://192.168.99.100:9001
+  OSSUrl: http://127.0.0.1:9001
   OSSSecretKey: minio123
   OSSAccessKey: minio
-  ImagePathBase: http://192.168.99.100:9001/matrix/
+  ImagePathBase: http://127.0.0.1:9001/matrix/
 
 server:
   tomcat:
