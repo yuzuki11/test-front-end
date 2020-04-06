@@ -1,6 +1,15 @@
 package com.cyprinus.matrix;
 
+
+import com.alibaba.rocketmq.client.exception.MQBrokerException;
+import com.alibaba.rocketmq.client.exception.MQClientException;
+import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
+import com.alibaba.rocketmq.client.producer.SendResult;
+import com.alibaba.rocketmq.common.message.Message;
+import com.alibaba.rocketmq.remoting.exception.RemotingException;
+import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.cyprinus.matrix.entity.MatrixUser;
+import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.util.JwtUtil;
 import com.cyprinus.matrix.util.OSSUtil;
@@ -80,9 +89,36 @@ class MatrixApplicationTests {
     @Test
     void testSSOUtil() throws InvalidPortException, InvalidEndpointException, IOException, InvalidKeyException, NoSuchAlgorithmException, InsufficientDataException, InternalException, NoResponseException, InvalidBucketNameException, XmlPullParserException, ErrorResponseException, InvalidArgumentException {
         System.out.println(config.getOSSUrl());
-        MinioClient minioClient = new MinioClient(config.getOSSUrl(),config.getOSSAccessKey(),config.getOSSSecretKey());
-        minioClient.putObject("matrix","test","38321534.jpg");
+        MinioClient minioClient = new MinioClient(config.getOSSUrl(), config.getOSSAccessKey(), config.getOSSSecretKey());
+        minioClient.putObject("matrix", "test", "38321534.jpg");
         System.out.println(minioClient.bucketExists("matrix"));
     }
+
+
+
+
+    @Test
+    void send() throws ServerInternalException, InterruptedException, RemotingException, MQClientException, MQBrokerException {
+        DefaultMQProducer producer = new DefaultMQProducer("cyprinus");
+        producer.setNamesrvAddr("localhost:9876");
+        producer.setInstanceName("rmq-instance");
+        producer.start();
+        try {
+            for (int i=0;i<100;i++){
+
+                Message message = new Message("log-topic", "user-tag","test".getBytes());
+                System.out.println("生产者发送消息:"+"test");
+                producer.send(message);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        producer.shutdown();
+    }
+
+
+
 
 }
