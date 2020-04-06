@@ -74,7 +74,7 @@ public class StudentService {
                 if (submit == null){
                     todo.add(quiz);
                 }else{
-                    if(submit.isRemark())
+                    if(submit.getScore() != null)
                         remarked.add(quiz);
                     else
                         done.add(quiz);
@@ -149,7 +149,7 @@ public class StudentService {
             if( now.compareTo(quiz.getDeadline()) > 0 || now.compareTo(quiz.getStartTime()) < 0 )
                 throw new ForbiddenException("不在答题时间之内！");
             List<Problem> problems = quiz.getProblems();
-            if( content.length > problems.size() )
+            if( content.length != problems.size() )
                 throw new ForbiddenException("回答和问题数目不一致！");
             Boolean ifPureObjective = true;
             for (Problem problem : problems) {
@@ -161,10 +161,9 @@ public class StudentService {
             // 客观题自动判分
             if (ifPureObjective) {
                 Integer[] scores = new Integer[problems.size()];
-                String[] answer = submit.getContent();
                 for (int i = 0; i < problems.size(); i++) {
                     Problem problem = problems.get(i);
-                    scores[i] = (answer[i].equals(problem.getAnswer()) ? quiz.getPoints()[i] : 0);
+                    scores[i] = (content[i].equals(problem.getAnswer()) ? quiz.getPoints()[i] : 0);
                 }
                 Score score = new Score();
                 score.setQuiz(quiz);
@@ -180,6 +179,7 @@ public class StudentService {
             submit.setRemark(ifPureObjective);
             submitRepository.save(submit);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             if (e instanceof ForbiddenException) throw e;
             throw new BadRequestException(e);
         }

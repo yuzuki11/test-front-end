@@ -3,10 +3,12 @@ package com.cyprinus.matrix.service;
 
 import com.cyprinus.matrix.entity.Label;
 import com.cyprinus.matrix.entity.MatrixUser;
+import com.cyprinus.matrix.entity.Picture;
 import com.cyprinus.matrix.entity.Problem;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.LabelRepository;
+import com.cyprinus.matrix.repository.PictureRepository;
 import com.cyprinus.matrix.repository.ProblemRepository;
 import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ import java.util.List;
 public class ProblemService {
 
     private final
+    PictureRepository pictureRepository;
+
+    private final
     LabelRepository labelRepository;
 
     private final
@@ -32,32 +37,43 @@ public class ProblemService {
     ObjectUtil objectUtil;
 
     @Autowired
-    public ProblemService(ProblemRepository problemRepository, LabelRepository labelRepository, ObjectUtil objectUtil) {
+    public ProblemService(ProblemRepository problemRepository, LabelRepository labelRepository, ObjectUtil objectUtil, PictureRepository pictureRepository) {
         this.problemRepository = problemRepository;
         this.labelRepository = labelRepository;
         this.objectUtil = objectUtil;
+        this.pictureRepository = pictureRepository;
     }
 
     @Transactional(rollbackOn = Throwable.class)
     public void createProblem(HashMap<String, Object> content) throws BadRequestException {
         try {
-            content.put("labels", labelRepository.findAllById((List<String>) content.get("labels")));
+            List<Label> labels = labelRepository.findAllById((List<String>) content.get("labels"));
             int baseNum = 0;
             Label baseLabel = null;
             Problem problem = objectUtil.map2object(content, Problem.class);
-            problemRepository.saveAndFlush(problem);
-            for (Label label : (List<Label>) content.get("labels")) {
+            problemRepository.saveAndFlush(problem);//刷进数据库用于获取_id
+            //处理图片
+            if (content.containsKey("pictures")) {
+                List<Picture> pictures = pictureRepository.findAllById((Iterable<String>) content.get("pictures"));
+                for (Picture picture : pictures) {
+                    picture.setOwnedBy(problem.get_id());
+                    picture.setUsage("problem");
+                }
+                pictureRepository.saveAll(pictures);
+            }
+            //处理标签
+            for (Label label : labels) {
                 if (label.isBase()) {
                     baseNum++;
                     baseLabel = label;
                 }
                 label.addProblem(problem);
                 if (baseNum > 1) throw new BadRequestException("传入过多基标签！");
-                labelRepository.saveAndFlush(label);
             }
             if (baseNum < 1) throw new BadRequestException("至少应有一个基标签！");
+            labelRepository.saveAll(labels);
             problem.setNum(baseLabel.getAbbr() + String.format("%04d", baseLabel.getProblems().size()));
-            problem.setLabels((List<Label>) content.get("labels"));
+            problem.setLabels(labels);
             problemRepository.save(problem);
         } catch (Exception e) {
             if (e instanceof BadRequestException) throw new BadRequestException(e.getMessage());
@@ -109,7 +125,7 @@ public class ProblemService {
         }
     }
 
-    public long getProblemCount(){
+    public long getProblemCount() {
         return problemRepository.count();
     }
 

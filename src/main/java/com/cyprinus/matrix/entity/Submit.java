@@ -8,7 +8,6 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.Table;
-import java.util.List;
 
 @Table(name = "Submit")
 @TypeDefs({

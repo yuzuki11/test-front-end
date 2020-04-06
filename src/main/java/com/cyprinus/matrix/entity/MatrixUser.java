@@ -1,10 +1,7 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -14,7 +11,7 @@ import java.util.Set;
 
 @Table(name = "MatrixUser")
 @Entity
-@JsonIdentityInfo(generator= ObjectIdGenerators.IntSequenceGenerator.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @SQLDelete(sql = "update matrix_user set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
@@ -64,12 +61,27 @@ public class MatrixUser extends MatrixBaseEntity {
     //@ElementCollection(targetClass = Lesson.class)
     private Set<Lesson> lessons_s;
 
+    @JsonProperty
     public Set<Lesson> getLessons() {
         if ("student".equals(this.role))
             return this.lessons_s;
         if ("teacher".equals(this.role))
             return this.lessons_t;
         else return null;
+    }
+
+    public void addLesson(Lesson lesson) {
+        if ("student".equals(this.role))
+            this.lessons_s.add(lesson);
+        if ("teacher".equals(this.role))
+            this.lessons_t.add(lesson);
+    }
+
+    public void removeLesson(Lesson lesson) {
+        if ("student".equals(this.role))
+            this.lessons_s.remove(lesson);
+        if ("teacher".equals(this.role))
+            this.lessons_t.remove(lesson);
     }
 
     public void setLessons(Set<Lesson> lessons) {

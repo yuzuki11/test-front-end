@@ -9,27 +9,31 @@ import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.MatrixUserService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
 import com.cyprinus.matrix.type.ResEntity;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unchecked")
 @RestController
 @RequestMapping("/user")
 public class MatrixUserController {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private final
+    ObjectUtil objectUtil;
 
     private final
     MatrixUserService matrixUserService;
 
     @Autowired
-    public MatrixUserController(MatrixUserService matrixUserService) {
+    public MatrixUserController(MatrixUserService matrixUserService, ObjectUtil objectUtil) {
         this.matrixUserService = matrixUserService;
+        this.objectUtil = objectUtil;
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
@@ -49,7 +53,7 @@ public class MatrixUserController {
 
     @MustLogin
     @RequestMapping(path = "/pwd", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws BadRequestException {
+    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException {
         matrixUserService.putPwd(request.getTokenInfo().get_id(), content.get("password"), content.get("old"));
         return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
     }
@@ -71,6 +75,39 @@ public class MatrixUserController {
         HashMap<String, Object> result = new HashMap<>();
         result.put("teachers", matrixUserService.getManyProfiles(matrixUser, page, size));
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+    @MustLogin
+    @RequestMapping(path = "/me", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity putSelfProfile(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser content) throws ServerInternalException {
+        matrixUserService.putProfile(content, request.getTokenInfo().get_id());
+        return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/{userId}", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity putStudentProfile(MatrixHttpServletRequestWrapper request, @RequestBody MatrixUser content, @PathVariable String userId) throws ServerInternalException {
+        matrixUserService.putProfile(content, userId);
+        return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "/admin/teacher/{userId}", method = RequestMethod.DELETE, produces = "application/json")
+    public ResponseEntity deleteTeacher(MatrixHttpServletRequestWrapper request, @PathVariable String userId) throws ServerInternalException, BadRequestException {
+        matrixUserService.deleteTeacher(userId);
+        return new ResEntity(HttpStatus.OK, "删除成功！").getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_TEACHER)
+    @RequestMapping(path = "/student", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity addStudents(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> content) throws ServerInternalException {
+        String lessonId = (String) content.get("lessonId");
+        List<HashMap> students = (List<HashMap>) content.get("students");
+        matrixUserService.addStudents(lessonId, request.getTokenInfo().get_id(), students);
+        return new ResEntity(HttpStatus.OK, "导入成功！").getResponse();
     }
 
 }

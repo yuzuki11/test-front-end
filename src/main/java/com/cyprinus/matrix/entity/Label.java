@@ -18,10 +18,10 @@ import java.util.List;
 public class Label extends MatrixBaseEntity {
 
     //是否是科目标签
+    @Column(name = "base")
     private boolean base;
 
     //科目缩写
-    @JsonIgnore
     @Column(name = "abbr")
     private  String abbr;
 
