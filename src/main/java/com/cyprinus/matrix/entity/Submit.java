@@ -32,7 +32,7 @@ public class Submit extends MatrixBaseEntity {
     //答案正文
     @Column(name = "content", columnDefinition = "character varying(2048) []")
     @Type(type = "array")
-    private List<String> content;
+    private String[] content;
 
     //批阅状态
     @Transient
@@ -75,11 +75,11 @@ public class Submit extends MatrixBaseEntity {
         this.score = score;
     }
 
-    public List<String> getContent() {
+    public String[] getContent() {
         return content;
     }
 
-    public void setContent(List<String> content) {
+    public void setContent(String[] content) {
         this.content = content;
     }
 

@@ -1,6 +1,7 @@
 package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import org.hibernate.annotations.*;
 
@@ -21,11 +22,13 @@ import java.util.List;
 public class Score extends MatrixBaseEntity {
 
     //对应的quiz
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "quiz", foreignKey = @ForeignKey)
     private Quiz quiz;
 
     //对应的学生
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "student", foreignKey = @ForeignKey)
     private MatrixUser student;
@@ -33,9 +36,10 @@ public class Score extends MatrixBaseEntity {
     //分数
     @Column(name = "score", columnDefinition = "Int[]")
     @Type(type = "int-array")
-    private List<Integer> score;
+    private Integer[] score;
 
     //原答案
+    @JsonIgnore
     @OneToOne(mappedBy = "score")
     @JoinColumn(name = "submit")
     private Submit submit;
@@ -46,7 +50,9 @@ public class Score extends MatrixBaseEntity {
 
     @PostConstruct
     void calc_total(){
-        total = score.stream().mapToInt(Integer::intValue).sum();
+        total = 0;
+        System.out.println("called:");
+        for(int i:score){total += i;}
     }
 
     public Quiz getQuiz() {
@@ -65,11 +71,11 @@ public class Score extends MatrixBaseEntity {
         this.student = student;
     }
 
-    public List<Integer> getScore() {
+    public Integer[] getScore() {
         return score;
     }
 
-    public void setScore(List<Integer> score) {
+    public void setScore(Integer[] score) {
         this.score = score;
     }
 

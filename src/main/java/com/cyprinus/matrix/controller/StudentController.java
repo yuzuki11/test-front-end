@@ -5,6 +5,7 @@ import com.cyprinus.matrix.annotation.Permission;
 import com.cyprinus.matrix.dto.QuizDTO;
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
+import com.cyprinus.matrix.entity.Submit;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.exception.ServerInternalException;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -53,21 +55,23 @@ public class StudentController {
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/quiz/{lessonId}/apart", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getQuizzesApart(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException, ForbiddenException {
-        HashMap<String, Object> data = new HashMap<>();
-        HashMap<String, List<QuizDTO>> quizzesApart = (studentService.getQuizzesApart(request.getTokenInfo().get_id(), lessonId));
-        Set<String> set = quizzesApart.keySet();
-        for (String string : set) {
-            data.put(string, quizzesApart.get(string));
-        }
+        HashMap<String, Object> data = (studentService.getQuizzesApart(request.getTokenInfo().get_id(), lessonId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
     }
 
     @MustLogin
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/quiz/{lessonId}/{quizId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getQuizInfo(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @PathVariable String quizId) throws ServerInternalException {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("quiz", studentService.getQuizInfo(request.getTokenInfo().get_id(), lessonId, quizId));
+    public ResponseEntity getQuizInfo(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @PathVariable String quizId) throws ServerInternalException, EntityNotFoundException,ForbiddenException {
+        HashMap<String, Object> data = studentService.getQuizInfo(request.getTokenInfo().get_id(), lessonId, quizId);
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_STUDENT)
+    @RequestMapping(path = "/quiz/{lessonId}/{quizId}/answer", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity submitAnswer(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, String[]> content, @PathVariable String lessonId, @PathVariable String quizId) throws BadRequestException, ForbiddenException {
+        studentService.submitAnswer(request.getTokenInfo().get_id(), lessonId, quizId, content.get("content"));
+        return new ResEntity(HttpStatus.OK, "提交成功！").getResponse();
     }
 }
