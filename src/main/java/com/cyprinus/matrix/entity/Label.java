@@ -85,4 +85,8 @@ public class Label extends MatrixBaseEntity {
         this.quizzes = quizzes;
     }
 
+    public void addQuiz(Quiz quiz) {
+        this.quizzes.add(quiz);
+    }
+
 }
