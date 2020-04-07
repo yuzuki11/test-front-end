@@ -30,6 +30,10 @@ public class ObjectUtil {
         BeanUtils.copyProperties(source, target, getNullField(source));
     }
 
+    String obj2json(Object obj) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(obj);
+    }
+
     private static String[] getNullField(Object target) {
         BeanWrapper beanWrapper = new BeanWrapperImpl(target);
         PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();

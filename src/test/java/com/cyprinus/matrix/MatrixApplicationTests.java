@@ -13,6 +13,9 @@ import io.minio.errors.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -24,6 +27,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = MatrixApplication.class)
 class MatrixApplicationTests {
@@ -49,7 +55,8 @@ class MatrixApplicationTests {
         MatrixUser user = new MatrixUser();
         user.setName("test");
         user.setRole("student");
-        //matrixUserRepo.save(user);
+        user.setUserId("11111");
+        matrixUserRepo.save(user);
         System.out.print("Current user count:");
         System.out.println(matrixUserRepo.count());
 
@@ -91,8 +98,6 @@ class MatrixApplicationTests {
     }
 
 
-
-
     @Autowired
     private KafkaTemplate template;
 
@@ -115,6 +120,34 @@ class MatrixApplicationTests {
 
     }
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Test
+    void testRedisGet() throws Exception {
+        stringRedisTemplate.opsForValue().set("aaa", "111");
+        assertEquals("111", stringRedisTemplate.opsForValue().get("aaa"));
+    }
+
+    @Test
+    void testObj() throws Exception {
+        String user = "123";
+        ValueOperations<String, String> operations = redisTemplate.opsForValue();
+        operations.set("com.neox", user);
+        operations.set("com.neo.f", user);
+        Thread.sleep(1000);
+        //redisTemplate.delete("com.neo.f");
+        boolean exists = redisTemplate.hasKey("com.neo.f");
+        if (exists) {
+            System.out.println("exists is true");
+            System.out.println(operations.get("com.neo.f"));
+        } else {
+            System.out.println("exists is false");
+        }
+        // Assert.assertEquals("aa", operations.get("com.neo.f").getUserName());
+    }
 
 
 }
