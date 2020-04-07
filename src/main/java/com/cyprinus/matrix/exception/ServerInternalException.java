@@ -1,6 +1,6 @@
 package com.cyprinus.matrix.exception;
 
-public class ServerInternalException extends Exception {
+public class ServerInternalException extends MatrixBaseException {
 
     private Boolean fatal = false;
 
