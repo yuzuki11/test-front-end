@@ -39,6 +39,7 @@ public class StudentService {
         this.scoreRepository = scoreRepository;
     }
 
+    // TODO:需要把任课教师字段去掉
     public Set<Lesson> getLessons(String _id) throws ServerInternalException {
         try {
             MatrixUser student = userRepository.getOne(_id);
@@ -103,7 +104,7 @@ public class StudentService {
                 problem.setAnswer(null);
             }
             String status;
-            String[] myAnswer = null;
+            String[] myAnswer = new String[0];
             Score score = null;
             if (submit == null){
                 status = "todo";
@@ -184,4 +185,16 @@ public class StudentService {
             throw new BadRequestException(e);
         }
     }
+
+    public Score getScore(String _id, String quizId) throws ServerInternalException {
+        try {
+            MatrixUser stu = userRepository.getOne(_id);
+            Quiz quiz = quizRepository.getOne(quizId);
+            return scoreRepository.findByQuizAndStudent(quiz, stu);
+        } catch (Exception e) {
+           if (e instanceof EntityNotFoundException) throw new EntityNotFoundException("查询不到该课程!");
+           throw new ServerInternalException(e);
+        }
+    }
+
 }
