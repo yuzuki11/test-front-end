@@ -1,15 +1,7 @@
 package com.cyprinus.matrix;
 
 
-import com.alibaba.rocketmq.client.exception.MQBrokerException;
-import com.alibaba.rocketmq.client.exception.MQClientException;
-import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
-import com.alibaba.rocketmq.client.producer.SendResult;
-import com.alibaba.rocketmq.common.message.Message;
-import com.alibaba.rocketmq.remoting.exception.RemotingException;
-import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.cyprinus.matrix.entity.MatrixUser;
-import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.util.JwtUtil;
 import com.cyprinus.matrix.util.OSSUtil;
@@ -21,6 +13,10 @@ import io.minio.errors.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -97,27 +93,27 @@ class MatrixApplicationTests {
 
 
 
-    @Test
-    void send() throws ServerInternalException, InterruptedException, RemotingException, MQClientException, MQBrokerException {
-        DefaultMQProducer producer = new DefaultMQProducer("cyprinus");
-        producer.setNamesrvAddr("localhost:9876");
-        producer.setInstanceName("rmq-instance");
-        producer.start();
-        try {
-            for (int i=0;i<100;i++){
+    @Autowired
+    private KafkaTemplate template;
 
-                Message message = new Message("log-topic", "user-tag","test".getBytes());
-                System.out.println("生产者发送消息:"+"test");
-                producer.send(message);
+    @Test
+    void sendJson() {
+
+
+        ListenableFuture<SendResult<String, String>> future = template.send("test", "test");
+        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+            @Override
+            public void onSuccess(SendResult<String, String> result) {
+                System.out.println("msg OK." + result.toString());
             }
 
+            @Override
+            public void onFailure(Throwable ex) {
+                System.out.println("msg send failed: ");
+            }
+        });
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        producer.shutdown();
     }
-
 
 
 

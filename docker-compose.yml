@@ -79,42 +79,59 @@ services:
        retries: 3
 
 
-   namesrv:
-     image: rocketmqinc/rocketmq
-     container_name: rmqnamesrv
+   zookeeper:
+     image: wurstmeister/zookeeper
      ports:
-     - 9876:9876
-     volumes:
-     - ./logs:/home/rocketmq/logs
-     - ./rocketmq/store:/home/rocketmq/store
-     command: sh mqnamesrv
-   broker:
-     image: rocketmqinc/rocketmq
-     container_name: rmqbroker
+       - "2181:2181"
+   kafka:
+     image: wurstmeister/kafka
      ports:
-     - 10909:10909
-     - 10911:10911
-     - 10912:10912
-     volumes:
-     - ./logs:/home/rocketmq/logs
-     - ./store:/home/rocketmq/store
-     # - ./conf :/opt/rocketmq-4.4.0/conf
-     command: sh mqbroker -n rmqnamesrv:9876 autoCreateTopicEnable=true
-     #command: sh mqbroker -n namesrv:9876 -c ../conf/broker.conf
-     depends_on:
-     - namesrv
+       - "9092:9092"
      environment:
-     - JAVA_HOME=/usr/lib/jvm/jre
-   console:
-     image: styletang/rocketmq-console-ng
-     container_name: rocketmq-console-ng
-     ports:
-     - 8087:8080
-     depends_on:
-     - namesrv
-     environment:
-     - JAVA_OPTS= -Dlogging.level.root=info   -Drocketmq.namesrv.addr=rmqnamesrv:9876
-     - Dcom.rocketmq.sendMessageWithVIPChannel=false
+       KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+       KAFKA_CREATE_TOPICS: "test:1:1"
+       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+       KAFKA_ADVERTISED_PORT: 9092
+
+#   zookeeper:
+#     container_name: zookeeper
+#     image: wurstmeister/zookeeper
+#     volumes:
+#       - ./data:/data
+#     ports:
+#       - 2181:2181
+#     networks:
+#       - default
+#
+#   kafka:
+#     container_name: kafka
+#     image: wurstmeister/kafka
+#     ports:
+#       - 9092:9092
+#     environment:
+       # KAFKA_CREATE_TOPICS: "Topic:1:1"   #kafka启动后初始化一个有2个partition(分区)0个副本名叫kafeidou的topic
+#       KAFKA_ADVERTISED_HOST_NAME: 192.168.1.104
+#       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#       KAFKA_ADVERTISED_PORT: 9092
+     #  KAFKA_ADVERTISED_HOST_NAME: localhost
+      # KAFKA_CREATE_TOPICS: "Topic1:1:1"
+       #KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#     links:
+#       - zookeeper
+#     networks:
+#       - default
+
+   #kafka-manager:
+    # image: sheepkiller/kafka-manager
+     #ports:
+      # - 9020:9000
+     #environment:
+      # ZK_HOSTS: zookeeper:2181
+
+
 
 volumes:
   data1-1:

@@ -7,6 +7,26 @@ spring:
     hibernate:
       ddl-auto: update
 
+  kafka:
+    producer:
+      bootstrap-servers: 127.0.0.1:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      properties:
+        metadata:
+          broker:
+            list: 127.0.0.1:9092
+        message:
+          send:
+            max:
+              retries: 3
+        linger:
+          ms: 1
+
 
   datasource:
     url: jdbc:postgresql://127.0.0.1/matrix
@@ -30,23 +50,6 @@ matrix:
   OSSSecretKey: minio123
   OSSAccessKey: minio
   ImagePathBase: http://127.0.0.1:9001/matrix/
-
-rocketmq:
-  isOnOff: on
-#发送同一类消息的设置为同一个group，保证唯一,默认不需要设置，rocketmq会使用ip@pid(pid代表jvm名字)作为唯一标示
-  groupName: cyprinus
-  #mq的nameserver地址
-  namesrvAddr: localhost:9876
-  #消息最大长度 默认1024*4(4M)
-  maxMessageSize: 4096
-  #发送消息超时时间,默认3000
-  sendMsgTimeout: 3000
-  #发送消息失败重试次数，默认2
-  retryTimesWhenSendFailed: 2
-
-  name-server: ip:9876
-  producer:
-    group: my-group
 
 server:
   tomcat:
