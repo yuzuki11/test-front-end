@@ -11,6 +11,7 @@ import com.cyprinus.matrix.service.MatrixUserService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
 import com.cyprinus.matrix.type.ResEntity;
 import com.cyprinus.matrix.util.ObjectUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +55,7 @@ public class MatrixUserController {
 
     @MustLogin
     @RequestMapping(path = "/pwd", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException {
+    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException, JsonProcessingException {
         matrixUserService.putPwd(request.getTokenInfo().get_id(), content.get("password"), content.get("old"));
         return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
     }

@@ -11,6 +11,7 @@ import com.cyprinus.matrix.util.BCrypt;
 import com.cyprinus.matrix.util.JwtUtil;
 import com.cyprinus.matrix.util.KafkaUtil;
 import com.cyprinus.matrix.util.ObjectUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
@@ -90,15 +91,27 @@ public class MatrixUserService {
         }
     }
 
-    public void putPwd(String _id, String newPwd, String oldPwd) throws ForbiddenException, ServerInternalException {
+    public void putPwd(String _id, String newPwd, String oldPwd) throws ForbiddenException, ServerInternalException, JsonProcessingException {
         try {
             MatrixUser targetUser = matrixUserRepository.getOne(_id);
             if (!BCrypt.checkpw(oldPwd, targetUser.getPassword()))
                 throw new ForbiddenException("旧密码错误");
             targetUser.setPassword(BCrypt.hashpw(newPwd, BCrypt.gensalt()));
-            matrixUserRepository.save(targetUser);
+            if(targetUser.getEmail()!= null && !targetUser.getEmail().equals("")){
+                String token = JwtUtil.getRandomString(10);
+                String todo = "UPDATE-PASSWORD";
+                String key = todo + _id;
+                MatrixRedisPayload payload = new MatrixRedisPayload(_id, todo, targetUser.getPassword(), token);
+                ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+                operations.set(key, payload, 5, TimeUnit.MINUTES);
+                HashMap<String, String> values = new HashMap<>();
+                String link = "base?key=" + key + "&token=" + token;
+                values.put("link", link);
+                kafkaUtil.sendMail("UPDATE", "Matrix修改密码确认邮件", targetUser.getEmail(), values);
+            }else matrixUserRepository.save(targetUser);
+
         } catch (Throwable e) {
-            if (e instanceof ForbiddenException) throw e;
+            if (e instanceof MatrixBaseException) throw e;
             throw new ServerInternalException(e);
         }
     }
@@ -147,7 +160,7 @@ public class MatrixUserService {
                 HashMap<String, String> values = new HashMap<>();
                 String link = "base?key=" + key + "&token=" + token;
                 values.put("link", link);
-                kafkaUtil.sendMail("UPDATE-EMAIL", "Matrix修改绑定邮箱确认邮件", payload.getValue(), values);
+                kafkaUtil.sendMail("UPDATE", "Matrix修改绑定邮箱确认邮件", payload.getValue(), values);
                 content.setEmail(null);
             }
             objectUtil.copyNullProperties(content, user);
@@ -216,8 +229,18 @@ public class MatrixUserService {
                     MatrixUser user = matrixUserRepository.getOne(payload.getUserId());
                     user.setEmail(payload.getValue());
                     matrixUserRepository.save(user);
+                    redisTemplate.delete(key);
+                    return;
+                }
+                case "UPDATE-PASSWORD": {
+                    MatrixUser user = matrixUserRepository.getOne(payload.getUserId());
+                    user.setPassword(payload.getValue());
+                    matrixUserRepository.save(user);
+                    redisTemplate.delete(key);
+                    return;
                 }
             }
+            throw new NotFoundException();
         } catch (Throwable e) {
             if (e instanceof MatrixBaseException) throw e;
             e.printStackTrace();
