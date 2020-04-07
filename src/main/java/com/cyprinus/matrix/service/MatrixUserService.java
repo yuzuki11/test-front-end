@@ -2,9 +2,7 @@ package com.cyprinus.matrix.service;
 
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
-import com.cyprinus.matrix.exception.BadRequestException;
-import com.cyprinus.matrix.exception.ForbiddenException;
-import com.cyprinus.matrix.exception.ServerInternalException;
+import com.cyprinus.matrix.exception.*;
 import com.cyprinus.matrix.repository.LessonRepository;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.type.MatrixRedisPayload;
@@ -149,7 +147,7 @@ public class MatrixUserService {
                 HashMap<String, String> values = new HashMap<>();
                 String link = "base?key=" + key + "&token=" + token;
                 values.put("link", link);
-                kafkaUtil.sendMail("UPDATE-EMAIL","Matrix修改绑定邮箱确认邮件", payload.getValue(), values);
+                kafkaUtil.sendMail("UPDATE-EMAIL", "Matrix修改绑定邮箱确认邮件", payload.getValue(), values);
                 content.setEmail(null);
             }
             objectUtil.copyNullProperties(content, user);
@@ -205,6 +203,27 @@ public class MatrixUserService {
         } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
+    }
+
+    public void verifyOperate(String key, String token) throws NotFoundException, ServerInternalException {
+        try {
+            ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+            MatrixRedisPayload payload = (MatrixRedisPayload) operations.get(key);
+            if (payload == null) throw new NotFoundException();
+            if (!Objects.equals(token, payload.getToken())) throw new NotFoundException();
+            switch (payload.getTodo()) {
+                case "UPDATE-EMAIL": {
+                    MatrixUser user = matrixUserRepository.getOne(payload.getUserId());
+                    user.setEmail(payload.getValue());
+                    matrixUserRepository.save(user);
+                }
+            }
+        } catch (Throwable e) {
+            if (e instanceof MatrixBaseException) throw e;
+            e.printStackTrace();
+            throw new ServerInternalException(e);
+        }
+
     }
 
 }

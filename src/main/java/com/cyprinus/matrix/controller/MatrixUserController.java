@@ -5,6 +5,7 @@ import com.cyprinus.matrix.annotation.Permission;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
+import com.cyprinus.matrix.exception.NotFoundException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.MatrixUserService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
@@ -108,6 +109,13 @@ public class MatrixUserController {
         List<HashMap> students = (List<HashMap>) content.get("students");
         matrixUserService.addStudents(lessonId, request.getTokenInfo().get_id(), students);
         return new ResEntity(HttpStatus.OK, "导入成功！").getResponse();
+    }
+
+    @RequestMapping(path = "/verify", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity verifyOperate(MatrixHttpServletRequestWrapper request, @RequestParam String key, @RequestParam String token) throws NotFoundException, ServerInternalException {
+        if (key == null || token == null) throw new NotFoundException();
+        matrixUserService.verifyOperate(key, token);
+        return new ResEntity(HttpStatus.OK, "操作成功！").getResponse();
     }
 
 }
