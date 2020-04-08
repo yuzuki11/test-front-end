@@ -39,7 +39,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException {
+    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException, JsonProcessingException {
         Map<String, Object> data = matrixUserService.loginCheck(matrixUser);
         return new ResEntity(HttpStatus.OK, "登录成功！", data).getResponse();
     }
@@ -113,7 +113,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/verify", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity verifyOperate(MatrixHttpServletRequestWrapper request, @RequestParam String key, @RequestParam String token) throws NotFoundException, ServerInternalException {
+    public ResponseEntity verifyOperate(MatrixHttpServletRequestWrapper request, @RequestParam String key, @RequestParam String token) throws NotFoundException, ServerInternalException, JsonProcessingException {
         if (key == null || token == null) throw new NotFoundException();
         matrixUserService.verifyOperate(key, token);
         return new ResEntity(HttpStatus.OK, "操作成功！").getResponse();

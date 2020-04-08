@@ -12,6 +12,9 @@ public class MatrixRedisPayload implements Serializable {
 
     private String token;
 
+    public MatrixRedisPayload() {
+    }
+
     public MatrixRedisPayload(String userId, String todo, String value, String token) {
         this.userId = userId;
         this.todo = todo;

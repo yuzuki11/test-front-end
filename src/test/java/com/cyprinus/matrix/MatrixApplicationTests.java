@@ -5,6 +5,7 @@ import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.util.JwtUtil;
 import com.cyprinus.matrix.util.OSSUtil;
+import com.cyprinus.matrix.util.RedisUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -149,5 +150,17 @@ class MatrixApplicationTests {
         // Assert.assertEquals("aa", operations.get("com.neo.f").getUserName());
     }
 
+    @Autowired
+    RedisUtil redisUtil;
+
+    @Test
+    void testRedisUtil() throws JsonProcessingException {
+        System.out.println(redisUtil.getRedis().hasKey("test"));
+        redisUtil.set("test", "test");
+        redisUtil.set("test1", "test", 5, TimeUnit.DAYS);
+        System.out.println(redisUtil.getRedis().hasKey("test"));
+        System.out.println(redisUtil.getRedis().hasKey("test"));
+
+    }
 
 }

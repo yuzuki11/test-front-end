@@ -34,6 +34,10 @@ public class ObjectUtil {
         return objectMapper.writeValueAsString(obj);
     }
 
+    <T> T  json2obj(String json, Class<T> classType) throws JsonProcessingException {
+        return json == null ? null : objectMapper.readValue(json, classType);
+    }
+
     private static String[] getNullField(Object target) {
         BeanWrapper beanWrapper = new BeanWrapperImpl(target);
         PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
