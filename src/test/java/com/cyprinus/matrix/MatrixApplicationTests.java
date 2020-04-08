@@ -4,6 +4,7 @@ package com.cyprinus.matrix;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.util.JwtUtil;
+import com.cyprinus.matrix.util.KafkaUtil;
 import com.cyprinus.matrix.util.OSSUtil;
 import com.cyprinus.matrix.util.RedisUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -161,6 +162,14 @@ class MatrixApplicationTests {
         System.out.println(redisUtil.getRedis().hasKey("test"));
         System.out.println(redisUtil.getRedis().hasKey("test"));
 
+    }
+
+    @Autowired
+    KafkaUtil kafkaUtil;
+
+    @Test
+    void testSocket() throws JsonProcessingException {
+        kafkaUtil.promptByWebsocket("hello","11111","");
     }
 
 }

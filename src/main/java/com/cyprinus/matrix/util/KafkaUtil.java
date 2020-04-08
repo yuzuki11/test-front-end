@@ -90,6 +90,30 @@ public class KafkaUtil {
             this.target = target;
             this.content = content;
         }
+
+        public String getLevel() {
+            return level;
+        }
+
+        public void setLevel(String level) {
+            this.level = level;
+        }
+
+        public String getTarget() {
+            return target;
+        }
+
+        public void setTarget(String target) {
+            this.target = target;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
     }
 
     public void sendMail(String model, String subject, String target, Object values) throws JsonProcessingException {
@@ -120,7 +144,7 @@ public class KafkaUtil {
         });
     }
 
-    private void promptByWebsocket(String level, String target, String content) throws JsonProcessingException {
+    public void promptByWebsocket(String level, String target, String content) throws JsonProcessingException {
         WebSocketPayload payload = new WebSocketPayload(level, target, content);
         String json = objectUtil.obj2json(payload);
         template.send("websocket", json);
