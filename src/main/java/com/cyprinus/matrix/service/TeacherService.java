@@ -13,9 +13,11 @@ import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -30,17 +32,17 @@ public class TeacherService {
     private final
     LessonRepository lessonRepository;
 
-    private final LabelRepository labelRepository;
+    private final ScoreRepository scoreRepository;
 
-    private final ProblemRepository problemRepository;
+    private final SubmitRepository submitRepository;
 
     @Autowired
-    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, LabelRepository labelRepository, ProblemRepository problemRepository) {
+    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, ScoreRepository scoreRepository, SubmitRepository submitRepository) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
         this.userRepository = userRepository;
-        this.labelRepository = labelRepository;
-        this.problemRepository = problemRepository;
+        this.scoreRepository = scoreRepository;
+        this.submitRepository = submitRepository;
     }
 
     public Set<Lesson> getLessons(String _id) throws ServerInternalException {
@@ -78,5 +80,74 @@ public class TeacherService {
         }
     }
 
+    public List<Submit> getSubmits(String _id, String lessonId, String quizId,int page, int size, String remark) throws ServerInternalException {
+        try {
+            Lesson lesson = lessonRepository.getOne(lessonId);
+            MatrixUser teacher = userRepository.getOne(_id);
+            if (!lesson.getTeacher().equals(teacher))
+                throw new ForbiddenException("你不是这门课的老师！");
+            Quiz quiz = quizRepository.getOne(quizId);
+            Pageable pageable = PageRequest.of(page - 1, size);
+            List<Submit> submit;
+            if (remark.equals("all"))
+                submit = submitRepository.findByQuiz(quiz, pageable);
+            else if (remark.equals("true"))
+                submit = submitRepository.findByQuizAndScoreIsNotNull(quiz, pageable);
+            else
+                submit = submitRepository.findByQuizAndScoreIsNull(quiz, pageable);
+            return submit;
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
+
+    public Integer getSubmitsCount(String _id, String lessonId, String quizId, String remark) throws ServerInternalException {
+        try {
+            Quiz quiz = quizRepository.getOne(quizId);
+            Integer count;
+            System.out.println(remark);
+            if (remark.equals("all"))
+                count = submitRepository.countByQuiz(quiz);
+            else if(remark.equals("true"))
+                count = submitRepository.countByQuizAndScoreIsNotNull(quiz);
+            else
+                count = submitRepository.countByQuizAndScoreIsNull(quiz);
+            return count;
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
+
+    public HashMap<String, Object> getScore(String _id, String lessonId) throws ServerInternalException {
+        try {
+            HashMap<String, Object> data = new HashMap<>();
+            return data;
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
+
+    @Transactional(rollbackOn = Throwable.class)
+    public void remark(String _id, String lessonId, String quizId,  String submitId, ArrayList scores) throws ServerInternalException{
+        try {
+
+            Lesson lesson = lessonRepository.getOne(lessonId);
+            MatrixUser teacher = userRepository.getOne(_id);
+            if (!lesson.getTeacher().equals(teacher))
+                throw new ForbiddenException("你不是这门课的老师！");
+            Quiz quiz = quizRepository.getOne(quizId);
+            Submit submit = submitRepository.getOne(submitId);
+            Score score = new Score();
+            score.setQuiz(quiz);
+            score.setScore((Integer[])scores.toArray(new Integer[scores.size()]));
+            score.setStudent(submit.getStudent());
+            score.setSubmit(submit);
+            submit.setScore(score);
+            scoreRepository.save(score);
+            submitRepository.save(submit);
+        }catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
 
 }

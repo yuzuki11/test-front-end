@@ -3,6 +3,7 @@ package com.cyprinus.matrix.entity;
 import com.cyprinus.matrix.type.MatrixBaseEntity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -16,6 +17,7 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 @SQLDelete(sql = "update lesson set deleted = 1 where _id = ?")
 @Where(clause = "deleted = 0")
+@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
 public class Lesson extends MatrixBaseEntity {
 
     //选课编号

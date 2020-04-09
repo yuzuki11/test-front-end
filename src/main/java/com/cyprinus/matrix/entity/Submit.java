@@ -66,6 +66,10 @@ public class Submit extends MatrixBaseEntity {
         this.remark = remark;
     }
 
+    public boolean getRemark() {
+        return score != null;
+    }
+
     public Score getScore() {
         return score;
     }
