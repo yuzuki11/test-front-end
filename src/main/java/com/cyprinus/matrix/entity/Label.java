@@ -77,6 +77,10 @@ public class Label extends MatrixBaseEntity {
         this.problems.add(problem);
     }
 
+    public void removeProblem(Problem problem) {
+        this.problems.remove(problem);
+    }
+
     public List<Quiz> getQuizzes() {
         return quizzes;
     }
