@@ -178,4 +178,17 @@ public class MatrixUserService {
         }
     }
 
+    public List<MatrixUser> getAllStudents(MatrixUser targetUser) throws ServerInternalException {
+        try {
+            Example<MatrixUser> example = Example.of(targetUser);
+            return matrixUserRepository.findAll(example);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
+
+    public long getMatrixUserCount(){
+        return matrixUserRepository.count();
+    }
+
 }

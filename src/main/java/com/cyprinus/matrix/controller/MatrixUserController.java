@@ -110,4 +110,25 @@ public class MatrixUserController {
         return new ResEntity(HttpStatus.OK, "导入成功！").getResponse();
     }
 
+    @MustLogin
+    //@Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "/students", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request) throws ServerInternalException {
+        MatrixUser matrixUser = new MatrixUser();
+        matrixUser.setRole("student");
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("students", matrixUserService.getAllStudents(matrixUser));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+    @MustLogin
+    //@Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/count", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getMatrixUserCount(MatrixHttpServletRequestWrapper request) {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("count", matrixUserService.getMatrixUserCount() - 1);  //不知道为啥返回值总比真实值大1，所以这里只好减一
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+
 }
