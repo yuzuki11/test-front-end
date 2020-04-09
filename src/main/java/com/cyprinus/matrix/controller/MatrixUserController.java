@@ -111,23 +111,42 @@ public class MatrixUserController {
     }
 
     @MustLogin
-    //@Permission(Permission.Privilege.MUST_MANAGER)
+    @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/students", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request) throws ServerInternalException {
+    public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request,@RequestParam(required = false) String lessonId,@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
         MatrixUser matrixUser = new MatrixUser();
         matrixUser.setRole("student");
         HashMap<String, Object> result = new HashMap<>();
-        result.put("students", matrixUserService.getAllStudents(matrixUser));
+        result.put("students", matrixUserService.getAllStudents(matrixUser,lessonId, page, size));
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 
+
     @MustLogin
-    //@Permission(Permission.Privilege.NOT_STUDENT)
-    @RequestMapping(path = "/count", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getMatrixUserCount(MatrixHttpServletRequestWrapper request) {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("count", matrixUserService.getMatrixUserCount() - 1);  //不知道为啥返回值总比真实值大1，所以这里只好减一
-        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "/count/{role}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getMatrixUserCount(MatrixHttpServletRequestWrapper request, @PathVariable String role)throws ServerInternalException {
+        MatrixUser matrixUser = new MatrixUser();
+        if (role.equals("student"))
+        { matrixUser.setRole("student");
+        HashMap<String, Object> result= new HashMap<>();
+        result.put("student count:",matrixUserService.getMatrixUserCount(matrixUser));
+            return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+        }
+        else if (role.equals("teacher"))
+        {matrixUser.setRole("teacher");
+        HashMap<String, Object> result= new HashMap<>();
+        result.put("teacher count:",matrixUserService.getMatrixUserCount(matrixUser));
+            return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+        }
+        else if (role.equals("manager"))
+        {matrixUser.setRole("manager");
+        HashMap<String, Object> result= new HashMap<>();
+        result.put("manager count:",matrixUserService.getMatrixUserCount(matrixUser));
+            return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+        }
+        return new ResEntity(HttpStatus.OK, "无").getResponse();
+
     }
 
 
