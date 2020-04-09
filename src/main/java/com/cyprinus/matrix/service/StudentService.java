@@ -28,15 +28,12 @@ public class StudentService {
 
     private final SubmitRepository submitRepository;
 
-    private final ScoreRepository scoreRepository;
-
     @Autowired
-    public StudentService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository,SubmitRepository submitRepository, ScoreRepository scoreRepository) {
+    public StudentService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository,SubmitRepository submitRepository) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
         this.userRepository = userRepository;
         this.submitRepository = submitRepository;
-        this.scoreRepository = scoreRepository;
     }
 
     // TODO:需要把任课教师字段去掉
@@ -105,7 +102,7 @@ public class StudentService {
             }
             String status;
             String[] myAnswer = new String[0];
-            Score score = null;
+            Integer[] score = null;
             if (submit == null){
                 status = "todo";
             }else{
@@ -116,9 +113,8 @@ public class StudentService {
                 else {
                     status = "remarked";
                     // 不知道为什么PostConstruct注解没用，只能写个丑丑的循环凑合了orz
-                    Integer total = 0;
-                    for(int i : score.getScore()){total += i;}
-                    score.setTotal(total);
+//                    Integer total = 0;
+//                    for(int i : score){total += i;}
                 }
             }
             HashMap<String, Object> data = new HashMap<>();
@@ -166,13 +162,7 @@ public class StudentService {
                     Problem problem = problems.get(i);
                     scores[i] = (content[i].equals(problem.getAnswer()) ? quiz.getPoints()[i] : 0);
                 }
-                Score score = new Score();
-                score.setQuiz(quiz);
-                score.setScore(scores);
-                score.setStudent(student);
-                score.setSubmit(submit);
-                submit.setScore(score);
-                scoreRepository.save(score);
+                submit.setScore(scores);
             }
             submit.setContent(content);
             submit.setStudent(student);
@@ -186,14 +176,14 @@ public class StudentService {
         }
     }
 
-    public Score getScore(String _id, String quizId) throws ServerInternalException {
+    public Integer[] getScore(String _id, String quizId) throws ServerInternalException {
         try {
             MatrixUser stu = userRepository.getOne(_id);
             Quiz quiz = quizRepository.getOne(quizId);
-            return scoreRepository.findByQuizAndStudent(quiz, stu);
+            return submitRepository.findByQuizAndStudent(quiz, stu).getScore();
         } catch (Exception e) {
            if (e instanceof EntityNotFoundException) throw new EntityNotFoundException("查询不到该课程!");
-           throw new ServerInternalException(e);
+           throw new ServerInternalException(e.getMessage());
         }
     }
 

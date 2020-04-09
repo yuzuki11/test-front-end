@@ -2,11 +2,6 @@ package com.cyprinus.matrix.controller;
 
 import com.cyprinus.matrix.annotation.MustLogin;
 import com.cyprinus.matrix.annotation.Permission;
-import com.cyprinus.matrix.dto.QuizDTO;
-import com.cyprinus.matrix.entity.Lesson;
-import com.cyprinus.matrix.entity.MatrixUser;
-import com.cyprinus.matrix.entity.Score;
-import com.cyprinus.matrix.entity.Submit;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.exception.ServerInternalException;
@@ -20,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/student")
@@ -81,7 +74,7 @@ public class StudentController {
     @RequestMapping(path = "/score/quiz/{quizId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getScore(MatrixHttpServletRequestWrapper request, @PathVariable String quizId) throws ServerInternalException, EntityNotFoundException,ForbiddenException {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("scores", studentService.getScore(request.getTokenInfo().get_id(), quizId));
+        data.put("score", studentService.getScore(request.getTokenInfo().get_id(), quizId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
     }
 }

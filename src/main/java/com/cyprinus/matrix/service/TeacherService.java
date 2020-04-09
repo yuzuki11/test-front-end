@@ -32,16 +32,13 @@ public class TeacherService {
     private final
     LessonRepository lessonRepository;
 
-    private final ScoreRepository scoreRepository;
-
     private final SubmitRepository submitRepository;
 
     @Autowired
-    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, ScoreRepository scoreRepository, SubmitRepository submitRepository) {
+    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, SubmitRepository submitRepository) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
         this.userRepository = userRepository;
-        this.scoreRepository = scoreRepository;
         this.submitRepository = submitRepository;
     }
 
@@ -137,13 +134,7 @@ public class TeacherService {
                 throw new ForbiddenException("你不是这门课的老师！");
             Quiz quiz = quizRepository.getOne(quizId);
             Submit submit = submitRepository.getOne(submitId);
-            Score score = new Score();
-            score.setQuiz(quiz);
-            score.setScore((Integer[])scores.toArray(new Integer[scores.size()]));
-            score.setStudent(submit.getStudent());
-            score.setSubmit(submit);
-            submit.setScore(score);
-            scoreRepository.save(score);
+            submit.setScore((Integer[])scores.toArray(new Integer[scores.size()]));
             submitRepository.save(submit);
         }catch (Exception e) {
             throw new ServerInternalException(e);
