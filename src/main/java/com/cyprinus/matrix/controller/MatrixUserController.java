@@ -127,25 +127,9 @@ public class MatrixUserController {
     @RequestMapping(path = "/count/{role}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<Map<String, Object>> getMatrixUserCount(MatrixHttpServletRequestWrapper request, @PathVariable String role)throws ServerInternalException {
         MatrixUser matrixUser = new MatrixUser();
-        if (role.equals("student"))
-        { matrixUser.setRole("student");
         HashMap<String, Object> result= new HashMap<>();
-        result.put("student count:",matrixUserService.getMatrixUserCount(matrixUser));
+        result.put("count",matrixUserService.getMatrixUserCount(matrixUser,role));
             return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
-        }
-        else if (role.equals("teacher"))
-        {matrixUser.setRole("teacher");
-        HashMap<String, Object> result= new HashMap<>();
-        result.put("teacher count:",matrixUserService.getMatrixUserCount(matrixUser));
-            return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
-        }
-        else if (role.equals("manager"))
-        {matrixUser.setRole("manager");
-        HashMap<String, Object> result= new HashMap<>();
-        result.put("manager count:",matrixUserService.getMatrixUserCount(matrixUser));
-            return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
-        }
-        return new ResEntity(HttpStatus.OK, "无").getResponse();
 
     }
 

@@ -193,9 +193,10 @@ public class MatrixUserService {
         }
     }
 
-    public long getMatrixUserCount(MatrixUser targetUser)throws ServerInternalException{
+    public long getMatrixUserCount(MatrixUser targetUser,String role)throws ServerInternalException{
 
         try {
+            targetUser.setRole(role);
             Example<MatrixUser> example = Example.of(targetUser);
             return matrixUserRepository.count(example);
         } catch (Exception e) {
