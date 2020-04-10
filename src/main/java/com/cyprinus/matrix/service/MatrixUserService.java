@@ -12,13 +12,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 @Service
@@ -254,7 +253,7 @@ public class MatrixUserService {
             PageRequest pageRequest = PageRequest.of(page - 1, size);
             Lesson lesson1 = lessonRepository.getOne(lesson);
             List<MatrixUser> AllStudents =lesson1.getStudents();
-            List<MatrixUser> AllStudentsPage = new ArrayList<MatrixUser>();
+            List<MatrixUser> AllStudentsPage = new ArrayList<>();
             int currIdx = (page > 1 ? (page -1) * size : 0);
             for (int i = 0; i < size && i < AllStudents.size() - currIdx; i++) {
                 MatrixUser temp = AllStudents.get(currIdx + i);

@@ -39,7 +39,7 @@ public class StudentController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/quiz/{lessonId}/all", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getQuizzesAll(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException, ForbiddenException {
+    public ResponseEntity getQuizzesAll(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException {
         HashMap<String, Object> data = new HashMap<>();
         data.put("quizzes", studentService.getQuizzesAll(request.getTokenInfo().get_id(), lessonId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
@@ -48,7 +48,7 @@ public class StudentController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/quiz/{lessonId}/apart", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getQuizzesApart(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException, ForbiddenException {
+    public ResponseEntity getQuizzesApart(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException {
         HashMap<String, Object> data = (studentService.getQuizzesApart(request.getTokenInfo().get_id(), lessonId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
     }
@@ -72,7 +72,7 @@ public class StudentController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/score/quiz/{quizId}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getScore(MatrixHttpServletRequestWrapper request, @PathVariable String quizId) throws ServerInternalException, EntityNotFoundException,ForbiddenException {
+    public ResponseEntity getScore(MatrixHttpServletRequestWrapper request, @PathVariable String quizId) throws ServerInternalException, EntityNotFoundException {
         HashMap<String, Object> data = new HashMap<>();
         data.put("score", studentService.getScore(request.getTokenInfo().get_id(), quizId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
