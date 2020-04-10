@@ -119,4 +119,28 @@ public class MatrixUserController {
         return new ResEntity(HttpStatus.OK, "操作成功！").getResponse();
     }
 
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/students", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request,@RequestParam(required = false) String lessonId,@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
+        MatrixUser matrixUser = new MatrixUser();
+        matrixUser.setRole("student");
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("students", matrixUserService.getAllStudents(matrixUser,lessonId, page, size));
+        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+    }
+
+
+    @MustLogin
+    @Permission(Permission.Privilege.MUST_MANAGER)
+    @RequestMapping(path = "/count/{role}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getMatrixUserCount(MatrixHttpServletRequestWrapper request, @PathVariable String role)throws ServerInternalException {
+        MatrixUser matrixUser = new MatrixUser();
+        HashMap<String, Object> result= new HashMap<>();
+        result.put("count",matrixUserService.getMatrixUserCount(matrixUser,role));
+            return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+
+    }
+
+
 }

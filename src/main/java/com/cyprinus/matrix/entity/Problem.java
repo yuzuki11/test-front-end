@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Table(name = "Problem")
@@ -54,6 +51,9 @@ public class Problem extends MatrixBaseEntity {
     @ManyToMany(mappedBy = "problems")
     @Column(name = "quizRefers")
     private List<Quiz> quizRefers;
+
+    @Transient
+    private List<String> pictures;
 
     /*//答案图片
     AnswerPictures: [{
@@ -120,6 +120,14 @@ public class Problem extends MatrixBaseEntity {
 
     public void setQuizRefers(List<Quiz> quizRefers) {
         this.quizRefers = quizRefers;
+    }
+
+    public List<String> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(List<String> pictures) {
+        this.pictures = pictures;
     }
 
     public List<Label> getLabels() {

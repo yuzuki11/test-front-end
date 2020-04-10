@@ -2,6 +2,7 @@ package com.cyprinus.matrix.entity;
 
 import com.cyprinus.matrix.type.GenericArrayUserType;
 import com.cyprinus.matrix.type.MatrixBaseEntity;
+import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
@@ -11,7 +12,8 @@ import javax.persistence.Table;
 
 @Table(name = "Submit")
 @TypeDefs({
-        @TypeDef(name = "array", typeClass = GenericArrayUserType.class)
+        @TypeDef(name = "array", typeClass = GenericArrayUserType.class),
+        @TypeDef(name = "int-array", typeClass = IntArrayType.class)
 })
 @Entity
 @SQLDelete(sql = "update submit set deleted = 1 where _id = ?")
@@ -37,10 +39,10 @@ public class Submit extends MatrixBaseEntity {
     @Transient
     private boolean remark;
 
-    //评分
-    @OneToOne
-    @JoinColumn(name = "score")
-    private Score score;
+    //分数
+    @Column(name = "score", columnDefinition = "Int[]")
+    @Type(type = "int-array")
+    private Integer[] score;
 
     public MatrixUser getStudent() {
         return student;
@@ -66,11 +68,15 @@ public class Submit extends MatrixBaseEntity {
         this.remark = remark;
     }
 
-    public Score getScore() {
+    public boolean getRemark() {
+        return score != null;
+    }
+
+    public Integer[] getScore() {
         return score;
     }
 
-    public void setScore(Score score) {
+    public void setScore(Integer[] score) {
         this.score = score;
     }
 

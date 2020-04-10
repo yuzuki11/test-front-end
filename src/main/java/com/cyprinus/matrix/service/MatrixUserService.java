@@ -18,11 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 @Service
@@ -45,6 +41,8 @@ public class MatrixUserService {
 
     private final
     KafkaUtil kafkaUtil;
+
+
 
     @Autowired
     public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository, KafkaUtil kafkaUtil, RedisUtil redisUtil) {
@@ -250,5 +248,33 @@ public class MatrixUserService {
         }
 
     }
+
+    public List<MatrixUser> getAllStudents(MatrixUser targetUser,String lesson,int page, int size) throws ServerInternalException {
+        try {
+            PageRequest pageRequest = PageRequest.of(page - 1, size);
+            Lesson lesson1 = lessonRepository.getOne(lesson);
+            List<MatrixUser> AllStudents =lesson1.getStudents();
+            List<MatrixUser> AllStudentsPage = new ArrayList<MatrixUser>();
+            int currIdx = (page > 1 ? (page -1) * size : 0);
+            for (int i = 0; i < size && i < AllStudents.size() - currIdx; i++) {
+                MatrixUser temp = AllStudents.get(currIdx + i);
+                AllStudentsPage.add(temp);}
+            return AllStudentsPage;
+        } catch (Exception e) {
+            throw new ServerInternalException(e.getMessage());
+        }
+    }
+
+    public long getMatrixUserCount(MatrixUser targetUser,String role)throws ServerInternalException{
+
+        try {
+            targetUser.setRole(role);
+            Example<MatrixUser> example = Example.of(targetUser);
+            return matrixUserRepository.count(example);
+        } catch (Exception e) {
+            throw new ServerInternalException(e);
+        }
+    }
+
 
 }
