@@ -30,7 +30,6 @@ public class Lesson extends MatrixBaseEntity {
 
 
     //任课教师
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "teacher")
     private MatrixUser teacher;

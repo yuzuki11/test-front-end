@@ -50,6 +50,7 @@ public class ProblemService {
             List<Label> labels = labelRepository.findAllById((List<String>) content.get("labels"));
             int baseNum = 0;
             Label baseLabel = null;
+            content.put("labels",null);
             Problem problem = objectUtil.map2object(content, Problem.class);
             problemRepository.saveAndFlush(problem);//刷进数据库用于获取_id
             //处理图片
@@ -78,6 +79,50 @@ public class ProblemService {
         } catch (Exception e) {
             if (e instanceof BadRequestException) throw new BadRequestException(e.getMessage());
             throw new BadRequestException(e);
+        }
+    }
+
+    @Transactional(rollbackOn = Throwable.class)
+    public void putProblem(String problemId, HashMap<String, Object> content) throws BadRequestException {
+        try {
+            ObjectUtil objectUtil = new ObjectUtil();
+            Problem problem = problemRepository.getOne(problemId);
+            List<Label> labels = labelRepository.findAllById((Iterable<String>) content.get("labels"));
+            int baseNum = 0;
+            content.put("labels",null);
+            Problem new_problem = objectUtil.map2object(content, Problem.class);
+            //处理图片
+            if (content.containsKey("pictures")) {
+                System.out.println(content.get("pictures"));
+                List<Picture> pictures = pictureRepository.findAllById((Iterable<String>) content.get("pictures"));
+                for (Picture picture : pictures) {
+                    picture.setOwnedBy(problem.get_id());
+                    picture.setUsage("problem");
+                }
+                pictureRepository.saveAll(pictures);
+            }
+            //处理标签
+            //删除原标签下对应的problem
+            for (Label label : problem.getLabels()) {
+                label.removeProblem(problem);
+            }
+            for (Label label : labels) {
+                if (label.isBase()) {
+                    baseNum++;
+                }
+                if(!label.getProblems().contains(problem))
+                    label.addProblem(problem);
+                if (baseNum > 1) throw new BadRequestException("传入过多基标签！");
+            }
+            if (baseNum < 1) throw new BadRequestException("至少应有一个基标签！");
+            labelRepository.saveAll(labels);
+            new_problem.setNum(null);
+            new_problem.setLabels(labels);
+            objectUtil.copyNullProperties(new_problem, problem);
+            problemRepository.save(problem);
+        } catch (Exception e) {
+            if (e instanceof BadRequestException) throw new BadRequestException(e.getMessage());
+            throw new BadRequestException(e.getMessage());
         }
     }
 

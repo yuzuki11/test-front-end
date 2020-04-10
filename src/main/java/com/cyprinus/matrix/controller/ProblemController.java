@@ -36,6 +36,14 @@ public class ProblemController {
 
     @MustLogin
     @Permission(Permission.Privilege.NOT_STUDENT)
+    @RequestMapping(path = "/{problemId}", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity putProblem(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> content, @PathVariable String problemId) throws BadRequestException {
+        problemService.putProblem(problemId, content);
+        return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
+    }
+
+    @MustLogin
+    @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/num/{num}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getProblemByNum(MatrixHttpServletRequestWrapper request, @PathVariable String num) throws ServerInternalException {
         HashMap<String, Object> result = new HashMap<>();
