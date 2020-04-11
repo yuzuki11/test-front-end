@@ -18,13 +18,9 @@ public class JwtFilter implements Filter {
     private final
     JwtUtil jwtUtil;
 
-    private final
-    RedisUtil redisUtil;
-
     @Autowired
-    public JwtFilter(JwtUtil jwtUtil, RedisUtil redisUtil) {
+    public JwtFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.redisUtil = redisUtil;
     }
 
     @Override
@@ -37,7 +33,6 @@ public class JwtFilter implements Filter {
         MatrixHttpServletRequestWrapper matrixHttpServletRequestWrapper = new MatrixHttpServletRequestWrapper((HttpServletRequest) servletRequest);
         String token = matrixHttpServletRequestWrapper.getHeader("token");
         matrixHttpServletRequestWrapper.setTokenInfo(jwtUtil.decode(token));
-        if (!redisUtil.hasKey("TOKEN" + token)) matrixHttpServletRequestWrapper.setTokenInfo(null);
         filterChain.doFilter(matrixHttpServletRequestWrapper, servletResponse);
     }
 

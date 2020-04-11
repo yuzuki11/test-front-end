@@ -35,23 +35,15 @@ public class MatrixUserService {
     private final
     ObjectUtil objectUtil;
 
-    private final
-    RedisUtil redisUtil;
-
-    private final
-    KafkaUtil kafkaUtil;
-
     @Autowired
-    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository, KafkaUtil kafkaUtil, RedisUtil redisUtil) {
+    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository) {
         this.matrixUserRepository = matrixUserRepository;
         this.jwtUtil = jwtUtil;
         this.objectUtil = objectUtil;
         this.lessonRepository = lessonRepository;
-        this.kafkaUtil = kafkaUtil;
-        this.redisUtil = redisUtil;
     }
 
-    public Map<String, Object> loginCheck(HashMap content) throws EntityNotFoundException, ForbiddenException, ServerInternalException, JsonProcessingException {
+    public Map<String, Object> loginCheck(HashMap content) throws EntityNotFoundException, ForbiddenException, ServerInternalException {
         try {
             MatrixUser user = matrixUserRepository.findByUserId((String) content.get("userId"));
             if ((user.getPassword() == null && content.get("password").equals(content.get("userId"))) || BCrypt.checkpw((String) content.get("password"), user.getPassword())) {
@@ -65,14 +57,6 @@ public class MatrixUserService {
                 data.put("role", user.getRole());
                 String token = jwtUtil.sign(signData);
                 data.put("token", token);
-                //正常登录
-                String tokenKey = "TOKEN" + token;
-                redisUtil.set(tokenKey, signData, 7, TimeUnit.DAYS);
-                String userKey = "USER" + user.get_id();
-                //检验是否重复登录
-                String oldTokenKey = redisUtil.get(userKey, String.class);
-                if (oldTokenKey != null) redisUtil.getRedis().delete(oldTokenKey);//如果是则作废之前token
-                redisUtil.set(userKey, tokenKey, 7, TimeUnit.DAYS);
                 return data;
             } else {
                 throw new ForbiddenException("用户名密码不匹配!");
@@ -92,24 +76,13 @@ public class MatrixUserService {
         }
     }
 
-    public void putPwd(String _id, String newPwd, String oldPwd) throws ForbiddenException, ServerInternalException, JsonProcessingException {
+    public void putPwd(String _id, String newPwd, String oldPwd) throws ForbiddenException, ServerInternalException {
         try {
             MatrixUser targetUser = matrixUserRepository.getOne(_id);
             if (!BCrypt.checkpw(oldPwd, targetUser.getPassword()))
                 throw new ForbiddenException("旧密码错误");
             targetUser.setPassword(BCrypt.hashpw(newPwd, BCrypt.gensalt()));
-            if (targetUser.getEmail() != null && !targetUser.getEmail().equals("")) {
-                String token = JwtUtil.getRandomString(10);
-                String todo = "UPDATE-PASSWORD";
-                String key = todo + _id;
-                MatrixRedisPayload payload = new MatrixRedisPayload(_id, todo, targetUser.getPassword(), token);
-                redisUtil.set(key, payload, 5, TimeUnit.MINUTES);
-                HashMap<String, String> values = new HashMap<>();
-                String link = "base?key=" + key + "&token=" + token;
-                values.put("link", link);
-                kafkaUtil.sendMail("UPDATE", "Matrix修改密码确认邮件", targetUser.getEmail(), values);
-            } else matrixUserRepository.save(targetUser);
-
+            matrixUserRepository.save(targetUser);
         } catch (Throwable e) {
             if (e instanceof MatrixBaseException) throw e;
             throw new ServerInternalException(e);
@@ -150,18 +123,6 @@ public class MatrixUserService {
             content.setPassword(null);
             content.setUserId(null);
             MatrixUser user = matrixUserRepository.getOne(_id);
-            if (content.getEmail() != null && !Objects.equals(user.getEmail(), content.getEmail())) {
-                String token = JwtUtil.getRandomString(10);
-                String todo = "UPDATE-EMAIL";
-                String key = todo + _id;
-                MatrixRedisPayload payload = new MatrixRedisPayload(_id, todo, content.getEmail(), token);
-                redisUtil.set(key, payload, 5, TimeUnit.MINUTES);
-                HashMap<String, String> values = new HashMap<>();
-                String link = "base?key=" + key + "&token=" + token;
-                values.put("link", link);
-                kafkaUtil.sendMail("UPDATE", "Matrix修改绑定邮箱确认邮件", payload.getValue(), values);
-                content.setEmail(null);
-            }
             objectUtil.copyNullProperties(content, user);
             matrixUserRepository.save(user);
         } catch (Exception e) {
@@ -227,35 +188,6 @@ public class MatrixUserService {
         } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
-    }
-
-    public void verifyOperate(String key, String token) throws NotFoundException, ServerInternalException, JsonProcessingException {
-        try {
-            MatrixRedisPayload payload = redisUtil.get(key);
-            if (payload == null) throw new NotFoundException();
-            if (!Objects.equals(token, payload.getToken())) throw new NotFoundException();
-            switch (payload.getTodo()) {
-                case "UPDATE-EMAIL": {
-                    MatrixUser user = matrixUserRepository.getOne(payload.getUserId());
-                    user.setEmail(payload.getValue());
-                    matrixUserRepository.save(user);
-                    redisUtil.getRedis().delete(key);
-                    return;
-                }
-                case "UPDATE-PASSWORD": {
-                    MatrixUser user = matrixUserRepository.getOne(payload.getUserId());
-                    user.setPassword(payload.getValue());
-                    matrixUserRepository.save(user);
-                    redisUtil.getRedis().delete(key);
-                    return;
-                }
-            }
-            throw new NotFoundException();
-        } catch (Throwable e) {
-            if (e instanceof MatrixBaseException) throw e;
-            else throw new ServerInternalException(e);
-        }
-
     }
 
     public List<MatrixUser> getAllStudents(String lesson, int page, int size) throws ServerInternalException {

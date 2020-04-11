@@ -36,7 +36,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException, JsonProcessingException {
+    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException {
         Map<String, Object> data = matrixUserService.loginCheck(matrixUser);
         return new ResEntity(HttpStatus.OK, "登录成功！", data).getResponse();
     }
@@ -52,7 +52,7 @@ public class MatrixUserController {
 
     @MustLogin
     @RequestMapping(path = "/pwd", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException, JsonProcessingException {
+    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException {
         matrixUserService.putPwd(request.getTokenInfo().get_id(), content.get("password"), content.get("old"));
         return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
     }
@@ -107,13 +107,6 @@ public class MatrixUserController {
         List<HashMap> students = (List<HashMap>) content.get("students");
         matrixUserService.addStudents(lessonId, request.getTokenInfo().get_id(), students);
         return new ResEntity(HttpStatus.OK, "导入成功！").getResponse();
-    }
-
-    @RequestMapping(path = "/verify", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity verifyOperate(MatrixHttpServletRequestWrapper request, @RequestParam String key, @RequestParam String token) throws NotFoundException, ServerInternalException, JsonProcessingException {
-        if (key == null || token == null) throw new NotFoundException();
-        matrixUserService.verifyOperate(key, token);
-        return new ResEntity(HttpStatus.OK, "操作成功！").getResponse();
     }
 
     @MustLogin
