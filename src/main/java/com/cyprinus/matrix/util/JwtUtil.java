@@ -16,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Component
 public class JwtUtil {
@@ -34,6 +35,17 @@ public class JwtUtil {
         String secretKey = config.getSecretKey();
         byte[] encodedKey = Base64.decodeBase64(secretKey);
         signKey = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
+    }
+
+    public static String getRandomString(int length) {
+        String base = "abcdefghijklmnopqrstuvwxyz0123456789";
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            int number = random.nextInt(base.length());
+            sb.append(base.charAt(number));
+        }
+        return sb.toString();
     }
 
     public String sign(Map<String, String> data) {

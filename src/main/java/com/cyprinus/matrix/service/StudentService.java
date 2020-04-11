@@ -148,7 +148,7 @@ public class StudentService {
             List<Problem> problems = quiz.getProblems();
             if( content.length != problems.size() )
                 throw new ForbiddenException("回答和问题数目不一致！");
-            Boolean ifPureObjective = true;
+            boolean ifPureObjective = true;
             for (Problem problem : problems) {
                 if (!problem.getIfObjective()) {
                     ifPureObjective =false;

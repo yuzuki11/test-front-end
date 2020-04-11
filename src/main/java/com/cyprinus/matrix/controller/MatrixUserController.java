@@ -3,13 +3,12 @@ package com.cyprinus.matrix.controller;
 import com.cyprinus.matrix.annotation.MustLogin;
 import com.cyprinus.matrix.annotation.Permission;
 import com.cyprinus.matrix.entity.MatrixUser;
-import com.cyprinus.matrix.exception.BadRequestException;
-import com.cyprinus.matrix.exception.ForbiddenException;
-import com.cyprinus.matrix.exception.ServerInternalException;
+import com.cyprinus.matrix.exception.*;
 import com.cyprinus.matrix.service.MatrixUserService;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
 import com.cyprinus.matrix.type.ResEntity;
 import com.cyprinus.matrix.util.ObjectUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -103,7 +102,7 @@ public class MatrixUserController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_TEACHER)
     @RequestMapping(path = "/student", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity addStudents(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> content) throws ServerInternalException {
+    public ResponseEntity addStudents(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> content) throws MatrixBaseException {
         String lessonId = (String) content.get("lessonId");
         List<HashMap> students = (List<HashMap>) content.get("students");
         matrixUserService.addStudents(lessonId, request.getTokenInfo().get_id(), students);
@@ -114,10 +113,8 @@ public class MatrixUserController {
     @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/students", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request,@RequestParam(required = false) String lessonId,@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
-        MatrixUser matrixUser = new MatrixUser();
-        matrixUser.setRole("student");
         HashMap<String, Object> result = new HashMap<>();
-        result.put("students", matrixUserService.getAllStudents(matrixUser,lessonId, page, size));
+        result.put("students", matrixUserService.getAllStudents(lessonId, page, size));
         return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
     }
 

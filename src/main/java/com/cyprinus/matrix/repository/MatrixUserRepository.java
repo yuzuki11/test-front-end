@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MatrixUserRepository extends JpaRepository<MatrixUser, String> {
 
-    MatrixUser findByUserIdIs(String userId);
+    MatrixUser findByUserId(String userId);
+
+    boolean existsByUserId(String userId);
 
 }
