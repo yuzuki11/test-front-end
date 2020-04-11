@@ -7,6 +7,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "MatrixUser")
@@ -52,14 +53,14 @@ public class MatrixUser extends MatrixBaseEntity {
     @OneToMany(fetch = FetchType.EAGER)
     @Column(name = "lessons_t")
     //@ElementCollection(targetClass = Lesson.class)
-    private Set<Lesson> lessons_t;
+    private Set<Lesson> lessons_t = new HashSet<>();
 
     //所选课程
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     @Column(name = "lessons_s")
     //@ElementCollection(targetClass = Lesson.class)
-    private Set<Lesson> lessons_s;
+    private Set<Lesson> lessons_s = new HashSet<>();
 
     @JsonProperty
     public Set<Lesson> getLessons() {

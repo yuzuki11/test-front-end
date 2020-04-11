@@ -4,6 +4,7 @@ import com.cyprinus.matrix.dto.QuizDTO;
 import com.cyprinus.matrix.entity.*;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
+import com.cyprinus.matrix.exception.MatrixBaseException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.*;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
@@ -125,7 +126,7 @@ public class TeacherService {
     }
 
     @Transactional(rollbackOn = Throwable.class)
-    public void remark(String _id, String lessonId, String quizId,  String submitId, ArrayList scores) throws ServerInternalException{
+    public void remark(String _id, String lessonId, String quizId,  String submitId, ArrayList scores) throws ServerInternalException, ForbiddenException {
         try {
 
             Lesson lesson = lessonRepository.getOne(lessonId);
@@ -137,6 +138,7 @@ public class TeacherService {
             submit.setScore((Integer[])scores.toArray(new Integer[scores.size()]));
             submitRepository.save(submit);
         }catch (Exception e) {
+            if(e instanceof MatrixBaseException) throw e;
             throw new ServerInternalException(e);
         }
     }

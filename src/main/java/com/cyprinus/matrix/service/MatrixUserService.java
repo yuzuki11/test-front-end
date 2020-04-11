@@ -41,8 +41,6 @@ public class MatrixUserService {
     private final
     KafkaUtil kafkaUtil;
 
-
-
     @Autowired
     public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository, KafkaUtil kafkaUtil, RedisUtil redisUtil) {
         this.matrixUserRepository = matrixUserRepository;
@@ -72,7 +70,7 @@ public class MatrixUserService {
                 redisUtil.set(tokenKey, signData, 7, TimeUnit.DAYS);
                 String userKey = "USER" + user.get_id();
                 //检验是否重复登录
-                String oldTokenKey = redisUtil.get(userKey,String.class);
+                String oldTokenKey = redisUtil.get(userKey, String.class);
                 if (oldTokenKey != null) redisUtil.getRedis().delete(oldTokenKey);//如果是则作废之前token
                 redisUtil.set(userKey, tokenKey, 7, TimeUnit.DAYS);
                 return data;
@@ -195,8 +193,9 @@ public class MatrixUserService {
             student.removeLesson(lesson);
             matrixUserRepository.save(student);
             lessonRepository.save(lesson);
-        } catch (Exception e) {
-            if (e instanceof ForbiddenException) throw e;
+        } catch (MatrixBaseException e) {
+            throw e;
+        } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
 
@@ -204,16 +203,27 @@ public class MatrixUserService {
     }
 
     @Transactional(rollbackOn = Throwable.class)
-    public void addStudents(String lessonId, String operatorId, List<HashMap> students) throws ServerInternalException {
+    public void addStudents(String lessonId, String operatorId, List<HashMap> students) throws MatrixBaseException {
         try {
             Lesson lesson = lessonRepository.getOne(lessonId);
             if (!Objects.equals(lesson.getTeacher().get_id(), operatorId)) throw new ForbiddenException();
             for (HashMap item : students) {
-                MatrixUser student = objectUtil.map2object(item, MatrixUser.class);
-                student.setRole("student");
-                student.setPassword(BCrypt.hashpw(student.getUserId(), BCrypt.gensalt()));
+                MatrixUser student;
+                if (!matrixUserRepository.existsByUserId((String) item.get("userId"))) {//判断是否是已存在用户
+                    student = objectUtil.map2object(item, MatrixUser.class);
+                    student.setRole("student");
+                    student.setPassword(BCrypt.hashpw(student.getUserId(), BCrypt.gensalt()));
+                    matrixUserRepository.saveAndFlush(student);
+                } else {
+                    student = matrixUserRepository.findByUserId((String) item.get("userId"));//已存在用户直接获取并修改用户记录
+                }
+                student.addLesson(lesson);
+                lesson.addStudent(student);
+                lessonRepository.save(lesson);
                 matrixUserRepository.save(student);
             }
+        } catch (MatrixBaseException e) {
+            throw e;
         } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
@@ -248,23 +258,23 @@ public class MatrixUserService {
 
     }
 
-    public List<MatrixUser> getAllStudents(MatrixUser targetUser,String lesson,int page, int size) throws ServerInternalException {
+    public List<MatrixUser> getAllStudents(String lesson, int page, int size) throws ServerInternalException {
         try {
-            PageRequest pageRequest = PageRequest.of(page - 1, size);
             Lesson lesson1 = lessonRepository.getOne(lesson);
-            List<MatrixUser> AllStudents =lesson1.getStudents();
+            List<MatrixUser> AllStudents = lesson1.getStudents();
             List<MatrixUser> AllStudentsPage = new ArrayList<>();
-            int currIdx = (page > 1 ? (page -1) * size : 0);
-            for (int i = 0; i < size && i < AllStudents.size() - currIdx; i++) {
-                MatrixUser temp = AllStudents.get(currIdx + i);
-                AllStudentsPage.add(temp);}
+            int currentIndex = (page > 1 ? (page - 1) * size : 0);
+            for (int i = 0; i < size && i < AllStudents.size() - currentIndex; i++) {
+                MatrixUser temp = AllStudents.get(currentIndex + i);
+                AllStudentsPage.add(temp);
+            }
             return AllStudentsPage;
         } catch (Exception e) {
-            throw new ServerInternalException(e.getMessage());
+            throw new ServerInternalException(e);
         }
     }
 
-    public long getMatrixUserCount(MatrixUser targetUser,String role)throws ServerInternalException{
+    public long getMatrixUserCount(MatrixUser targetUser, String role) throws ServerInternalException {
 
         try {
             targetUser.setRole(role);

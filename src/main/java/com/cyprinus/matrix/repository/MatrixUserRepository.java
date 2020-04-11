@@ -7,4 +7,6 @@ public interface MatrixUserRepository extends JpaRepository<MatrixUser, String> 
 
     MatrixUser findByUserId(String userId);
 
+    boolean existsByUserId(String userId);
+
 }

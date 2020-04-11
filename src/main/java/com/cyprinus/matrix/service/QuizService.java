@@ -3,6 +3,7 @@ package com.cyprinus.matrix.service;
 import com.cyprinus.matrix.entity.*;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
+import com.cyprinus.matrix.exception.MatrixBaseException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.*;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
@@ -19,14 +20,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
 @Service
 public class QuizService {
-    private final
-    MatrixUserRepository userRepository;
 
     private final
     QuizRepository quizRepository;
@@ -34,20 +34,18 @@ public class QuizService {
     private final
     LessonRepository lessonRepository;
 
-    private final LabelRepository labelRepository;
+    private final
+    LabelRepository labelRepository;
 
-    private final ProblemRepository problemRepository;
-
-    private final PictureRepository pictureRepository;
+    private final
+    ProblemRepository problemRepository;
 
     @Autowired
     public QuizService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, LabelRepository labelRepository, ProblemRepository problemRepository, PictureRepository pictureRepository) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
-        this.userRepository = userRepository;
         this.labelRepository = labelRepository;
         this.problemRepository = problemRepository;
-        this.pictureRepository = pictureRepository;
     }
 
     public Quiz getQuiz(String _id) throws ServerInternalException {
@@ -68,7 +66,7 @@ public class QuizService {
     }
 
     @Transactional(rollbackOn = Throwable.class)
-    public void createQuiz(String _id, HashMap<String, Object> quizInfo) throws ServerInternalException {
+    public void createQuiz(String _id, HashMap<String, Object> quizInfo) throws ServerInternalException, BadRequestException {
         try {
             int baseNum = 0;
             Quiz quiz = new Quiz();
@@ -96,7 +94,9 @@ public class QuizService {
             quiz.setDeadline(df.parse((String) quizInfo.get("deadline")));
             quiz.setStartTime(df.parse((String) quizInfo.get("startTime")));
             quizRepository.save(quiz);
-        } catch (Exception e) {
+        } catch (MatrixBaseException e) {
+            throw e;
+        } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
     }

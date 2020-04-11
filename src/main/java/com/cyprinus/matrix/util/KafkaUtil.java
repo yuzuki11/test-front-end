@@ -145,7 +145,7 @@ public class KafkaUtil {
     }
 
     public void promptByWebsocket(String level, String target, String content) throws JsonProcessingException {
-        WebSocketPayload payload = new WebSocketPayload(level, target, content);
+        WebSocketPayload payload = new WebSocketPayload(level, target, content);//这里的"level"分为SUCCESS INFO ERROR三个等级，对应着SocketIO里的事件
         String json = objectUtil.obj2json(payload);
         template.send("websocket", json);
     }

@@ -3,6 +3,7 @@ package com.cyprinus.matrix.controller;
 
 import com.cyprinus.matrix.annotation.MustLogin;
 import com.cyprinus.matrix.annotation.Permission;
+import com.cyprinus.matrix.exception.MatrixBaseException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.service.MatrixUserService;
 import com.cyprinus.matrix.service.QuizService;
@@ -43,7 +44,7 @@ public class QuizController {
     @MustLogin
     @Permission(value = Permission.Privilege.MUST_TEACHER)
     @RequestMapping(path = "", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity createQuiz(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> content) throws ServerInternalException {
+    public ResponseEntity createQuiz(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> content) throws MatrixBaseException {
         quizService.createQuiz(request.getTokenInfo().get_id(), content);
         return new ResEntity(HttpStatus.OK, "添加成功！").getResponse();
     }

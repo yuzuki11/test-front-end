@@ -73,7 +73,7 @@ public class TeacherController {
     @MustLogin
     @Permission(value = Permission.Privilege.MUST_TEACHER)
     @RequestMapping(path = "/quiz/{lessonId}/{quizId}/remark", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity remark(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @PathVariable String quizId, @RequestBody HashMap<String, Object> content) throws ServerInternalException {
+    public ResponseEntity remark(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId, @PathVariable String quizId, @RequestBody HashMap<String, Object> content) throws ServerInternalException, ForbiddenException {
         teacherService.remark(request.getTokenInfo().get_id(), lessonId, quizId, (String)content.get("submitId"), (ArrayList) content.get("scores"));
         return new ResEntity(HttpStatus.OK, "评分成功！").getResponse();
     }
