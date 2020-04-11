@@ -4,7 +4,9 @@ package com.cyprinus.matrix;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
 import com.cyprinus.matrix.util.JwtUtil;
+import com.cyprinus.matrix.util.KafkaUtil;
 import com.cyprinus.matrix.util.OSSUtil;
+import com.cyprinus.matrix.util.RedisUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -95,6 +97,79 @@ class MatrixApplicationTests {
         MinioClient minioClient = new MinioClient(config.getOSSUrl(), config.getOSSAccessKey(), config.getOSSSecretKey());
         minioClient.putObject("matrix", "test", "38321534.jpg");
         System.out.println(minioClient.bucketExists("matrix"));
+    }
+
+
+    @Autowired
+    private KafkaTemplate template;
+
+    @Test
+    void sendJson() {
+
+
+        ListenableFuture<SendResult<String, String>> future = template.send("test", "test");
+        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+            @Override
+            public void onSuccess(SendResult<String, String> result) {
+                System.out.println("msg OK." + result.toString());
+            }
+
+            @Override
+            public void onFailure(Throwable ex) {
+                System.out.println("msg send failed: ");
+            }
+        });
+
+    }
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Test
+    void testRedisGet() throws Exception {
+        stringRedisTemplate.opsForValue().set("aaa", "111");
+        assertEquals("111", stringRedisTemplate.opsForValue().get("aaa"));
+    }
+
+    @Test
+    void testObj() throws Exception {
+        String user = "123";
+        ValueOperations<String, String> operations = redisTemplate.opsForValue();
+        operations.set("com.neox", user);
+        operations.set("com.neo.f", user);
+        Thread.sleep(1000);
+        //redisTemplate.delete("com.neo.f");
+        boolean exists = redisTemplate.hasKey("com.neo.f");
+        if (exists) {
+            System.out.println("exists is true");
+            System.out.println(operations.get("com.neo.f"));
+        } else {
+            System.out.println("exists is false");
+        }
+        // Assert.assertEquals("aa", operations.get("com.neo.f").getUserName());
+    }
+
+    @Autowired
+    RedisUtil redisUtil;
+
+    @Test
+    void testRedisUtil() throws JsonProcessingException {
+        System.out.println(redisUtil.getRedis().hasKey("test"));
+        redisUtil.set("test", "test");
+        redisUtil.set("test1", "test", 5, TimeUnit.DAYS);
+        System.out.println(redisUtil.getRedis().hasKey("test"));
+        System.out.println(redisUtil.getRedis().hasKey("test"));
+
+    }
+
+    @Autowired
+    KafkaUtil kafkaUtil;
+
+    @Test
+    void testSocket() throws JsonProcessingException {
+        kafkaUtil.promptByWebsocket("hello","11111","");
     }
 
 }
