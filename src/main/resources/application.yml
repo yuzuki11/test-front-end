@@ -7,6 +7,26 @@ spring:
     hibernate:
       ddl-auto: update
 
+  kafka:
+    producer:
+      bootstrap-servers: 127.0.0.1:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      properties:
+        metadata:
+          broker:
+            list: 127.0.0.1:9092
+        message:
+          send:
+            max:
+              retries: 3
+        linger:
+          ms: 1
+
 
   datasource:
     url: jdbc:postgresql://127.0.0.1/matrix

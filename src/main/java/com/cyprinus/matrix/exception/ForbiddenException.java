@@ -1,6 +1,6 @@
 package com.cyprinus.matrix.exception;
 
-public class ForbiddenException extends Exception {
+public class ForbiddenException extends MatrixBaseException {
 
     private Boolean fatal = false;
 

@@ -1,6 +1,6 @@
 package com.cyprinus.matrix.exception;
 
-public class BadRequestException extends Exception {
+public class BadRequestException extends MatrixBaseException {
 
     private Boolean fatal = false;
 

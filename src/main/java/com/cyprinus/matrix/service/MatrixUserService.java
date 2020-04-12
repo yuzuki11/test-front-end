@@ -2,15 +2,13 @@ package com.cyprinus.matrix.service;
 
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
-import com.cyprinus.matrix.exception.BadRequestException;
-import com.cyprinus.matrix.exception.ForbiddenException;
-import com.cyprinus.matrix.exception.ServerInternalException;
+import com.cyprinus.matrix.exception.*;
 import com.cyprinus.matrix.repository.LessonRepository;
 import com.cyprinus.matrix.repository.MatrixUserRepository;
+import com.cyprinus.matrix.type.MatrixRedisPayload;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
-import com.cyprinus.matrix.util.BCrypt;
-import com.cyprinus.matrix.util.JwtUtil;
-import com.cyprinus.matrix.util.ObjectUtil;
+import com.cyprinus.matrix.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 @Service
@@ -33,9 +32,8 @@ public class MatrixUserService {
     private final
     JwtUtil jwtUtil;
 
-    private final ObjectUtil objectUtil;
-
-
+    private final
+    ObjectUtil objectUtil;
 
     @Autowired
     public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository) {
@@ -47,19 +45,22 @@ public class MatrixUserService {
 
     public Map<String, Object> loginCheck(HashMap content) throws EntityNotFoundException, ForbiddenException, ServerInternalException {
         try {
-            MatrixUser user = matrixUserRepository.findByUserIdIs((String) content.get("userId"));
-            if (!BCrypt.checkpw((String) content.get("password"), user.getPassword()))
+            MatrixUser user = matrixUserRepository.findByUserId((String) content.get("userId"));
+            if ((user.getPassword() == null && content.get("password").equals(content.get("userId"))) || BCrypt.checkpw((String) content.get("password"), user.getPassword())) {
+                Map<String, String> signData = new HashMap<>();
+                signData.put("userId", user.getUserId());
+                signData.put("todo", "login");
+                signData.put("role", user.getRole());
+                signData.put("_id", user.get_id());
+                Map<String, Object> data = new HashMap<>();
+                data.put("userId", user.getUserId());
+                data.put("role", user.getRole());
+                String token = jwtUtil.sign(signData);
+                data.put("token", token);
+                return data;
+            } else {
                 throw new ForbiddenException("用户名密码不匹配!");
-            Map<String, String> signData = new HashMap<>();
-            signData.put("userId", user.getUserId());
-            signData.put("todo", "login");
-            signData.put("role", user.getRole());
-            signData.put("_id", user.get_id());
-            Map<String, Object> data = new HashMap<>();
-            data.put("userId", user.getUserId());
-            data.put("role", user.getRole());
-            data.put("token", jwtUtil.sign(signData));
-            return data;
+            }
         } catch (Throwable e) {
             if (e instanceof ForbiddenException) throw e;
             throw new ServerInternalException(e);
@@ -83,7 +84,7 @@ public class MatrixUserService {
             targetUser.setPassword(BCrypt.hashpw(newPwd, BCrypt.gensalt()));
             matrixUserRepository.save(targetUser);
         } catch (Throwable e) {
-            if (e instanceof ForbiddenException) throw e;
+            if (e instanceof MatrixBaseException) throw e;
             throw new ServerInternalException(e);
         }
     }
@@ -153,8 +154,9 @@ public class MatrixUserService {
             student.removeLesson(lesson);
             matrixUserRepository.save(student);
             lessonRepository.save(lesson);
-        } catch (Exception e) {
-            if (e instanceof ForbiddenException) throw e;
+        } catch (MatrixBaseException e) {
+            throw e;
+        } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
 
@@ -162,38 +164,49 @@ public class MatrixUserService {
     }
 
     @Transactional(rollbackOn = Throwable.class)
-    public void addStudents(String lessonId, String operatorId, List<HashMap> students) throws ServerInternalException {
+    public void addStudents(String lessonId, String operatorId, List<HashMap> students) throws MatrixBaseException {
         try {
             Lesson lesson = lessonRepository.getOne(lessonId);
             if (!Objects.equals(lesson.getTeacher().get_id(), operatorId)) throw new ForbiddenException();
             for (HashMap item : students) {
-                MatrixUser student = objectUtil.map2object(item, MatrixUser.class);
-                student.setRole("student");
-                student.setPassword(BCrypt.hashpw(student.getUserId(), BCrypt.gensalt()));
+                MatrixUser student;
+                if (!matrixUserRepository.existsByUserId((String) item.get("userId"))) {//判断是否是已存在用户
+                    student = objectUtil.map2object(item, MatrixUser.class);
+                    student.setRole("student");
+                    student.setPassword(BCrypt.hashpw(student.getUserId(), BCrypt.gensalt()));
+                    matrixUserRepository.saveAndFlush(student);
+                } else {
+                    student = matrixUserRepository.findByUserId((String) item.get("userId"));//已存在用户直接获取并修改用户记录
+                }
+                student.addLesson(lesson);
+                lesson.addStudent(student);
+                lessonRepository.save(lesson);
                 matrixUserRepository.save(student);
             }
+        } catch (MatrixBaseException e) {
+            throw e;
         } catch (Throwable e) {
             throw new ServerInternalException(e);
         }
     }
 
-    public List<MatrixUser> getAllStudents(MatrixUser targetUser,String lesson,int page, int size) throws ServerInternalException {
+    public List<MatrixUser> getAllStudents(String lesson, int page, int size) throws ServerInternalException {
         try {
-            PageRequest pageRequest = PageRequest.of(page - 1, size);
             Lesson lesson1 = lessonRepository.getOne(lesson);
-            List<MatrixUser> AllStudents =lesson1.getStudents();
-            List<MatrixUser> AllStudentsPage = new ArrayList<MatrixUser>();
-            int currIdx = (page > 1 ? (page -1) * size : 0);
-            for (int i = 0; i < size && i < AllStudents.size() - currIdx; i++) {
-                MatrixUser temp = AllStudents.get(currIdx + i);
-                AllStudentsPage.add(temp);}
+            List<MatrixUser> AllStudents = lesson1.getStudents();
+            List<MatrixUser> AllStudentsPage = new ArrayList<>();
+            int currentIndex = (page > 1 ? (page - 1) * size : 0);
+            for (int i = 0; i < size && i < AllStudents.size() - currentIndex; i++) {
+                MatrixUser temp = AllStudents.get(currentIndex + i);
+                AllStudentsPage.add(temp);
+            }
             return AllStudentsPage;
         } catch (Exception e) {
-            throw new ServerInternalException(e.getMessage());
+            throw new ServerInternalException(e);
         }
     }
 
-    public long getMatrixUserCount(MatrixUser targetUser,String role)throws ServerInternalException{
+    public long getMatrixUserCount(MatrixUser targetUser, String role) throws ServerInternalException {
 
         try {
             targetUser.setRole(role);
