@@ -35,12 +35,15 @@ public class TeacherService {
 
     private final SubmitRepository submitRepository;
 
+    private final TextBookRepository textBookRepository;
+
     @Autowired
-    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, SubmitRepository submitRepository) {
+    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, SubmitRepository submitRepository,TextBookRepository textBookRepository) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
         this.userRepository = userRepository;
         this.submitRepository = submitRepository;
+        this.textBookRepository=textBookRepository;
     }
 
     public Set<Lesson> getLessons(String _id) throws ServerInternalException {
@@ -137,6 +140,30 @@ public class TeacherService {
             Submit submit = submitRepository.getOne(submitId);
             submit.setScore((Integer[])scores.toArray(new Integer[scores.size()]));
             submitRepository.save(submit);
+            //屎 从此开始
+            List<Problem> problems = quiz.getProblems();
+            Boolean ifObjective = true;
+            List<Problem> wrongproblems=new ArrayList<Problem>();
+            for (Problem problem : problems) {
+                if (!problem.getIfObjective()) {
+                    ifObjective =false;
+                    break;
+                }
+            }
+            TextBookService textBookService=new TextBookService(textBookRepository,lessonRepository,userRepository);
+            TextBook textBook=new TextBook();
+            //非客观题
+            if (!ifObjective) {
+                for (int i = 0; i < problems.size(); i++) {
+                    Problem problem = problems.get(i);
+                    if (scores.get(i)!=quiz.getPoints()[i])
+                        //加错题wrongproblems
+                        wrongproblems.add(problem);
+                }
+            }
+            //我扔
+            textBookService.addProblemInTextbook(textBook,_id,lessonId,wrongproblems);
+
         }catch (Exception e) {
             if(e instanceof MatrixBaseException) throw e;
             throw new ServerInternalException(e);

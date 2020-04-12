@@ -64,7 +64,7 @@ public class StudentController {
     @MustLogin
     @Permission(Permission.Privilege.MUST_STUDENT)
     @RequestMapping(path = "/quiz/{lessonId}/{quizId}/answer", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity submitAnswer(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, String[]> content, @PathVariable String lessonId, @PathVariable String quizId) throws BadRequestException, ForbiddenException {
+    public ResponseEntity submitAnswer(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, String[]> content, @PathVariable String lessonId, @PathVariable String quizId) throws BadRequestException, ForbiddenException, ServerInternalException {
         studentService.submitAnswer(request.getTokenInfo().get_id(), lessonId, quizId, content.get("content"));
         return new ResEntity(HttpStatus.OK, "提交成功！").getResponse();
     }
