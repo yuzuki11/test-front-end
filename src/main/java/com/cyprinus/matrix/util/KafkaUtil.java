@@ -1,5 +1,6 @@
 package com.cyprinus.matrix.util;
 
+import com.cyprinus.matrix.entity.Submit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -116,6 +117,37 @@ public class KafkaUtil {
         }
     }
 
+    static class StatisticsPayload implements Serializable {
+
+        private Submit submit;
+
+        private String lessonId;
+
+        public StatisticsPayload() {
+        }
+
+        StatisticsPayload(Submit submit, String lessonId) {
+            this.submit = submit;
+            this.lessonId = lessonId;
+        }
+
+        public Submit getSubmit() {
+            return submit;
+        }
+
+        public void setSubmit(Submit submit) {
+            this.submit = submit;
+        }
+
+        public String getLessonId() {
+            return lessonId;
+        }
+
+        public void setLessonId(String lessonId) {
+            this.lessonId = lessonId;
+        }
+    }
+
     public void sendMail(String model, String subject, String target, Object values) throws JsonProcessingException {
         MailPayload payload = new MailPayload(model, subject, target, values);
         String json = objectUtil.obj2json(payload);
@@ -149,4 +181,11 @@ public class KafkaUtil {
         String json = objectUtil.obj2json(payload);
         template.send("websocket", json);
     }
+
+    public void sendSubmit(String lessonId, Submit submit) throws JsonProcessingException {
+        StatisticsPayload payload = new StatisticsPayload(submit, lessonId);
+        String json = objectUtil.obj2json(payload);
+        template.send("statistics", json);
+    }
+
 }

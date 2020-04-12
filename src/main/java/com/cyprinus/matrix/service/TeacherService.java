@@ -10,6 +10,7 @@ import com.cyprinus.matrix.repository.*;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
 import com.cyprinus.matrix.util.BCrypt;
 import com.cyprinus.matrix.util.JwtUtil;
+import com.cyprinus.matrix.util.KafkaUtil;
 import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -24,6 +25,10 @@ import java.util.*;
 
 @Service
 public class TeacherService {
+
+    private final
+    KafkaUtil kafkaUtil;
+
     private final
     MatrixUserRepository userRepository;
 
@@ -36,11 +41,12 @@ public class TeacherService {
     private final SubmitRepository submitRepository;
 
     @Autowired
-    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, SubmitRepository submitRepository) {
+    public TeacherService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, SubmitRepository submitRepository, KafkaUtil kafkaUtil) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
         this.userRepository = userRepository;
         this.submitRepository = submitRepository;
+        this.kafkaUtil = kafkaUtil;
     }
 
     public Set<Lesson> getLessons(String _id) throws ServerInternalException {
@@ -58,13 +64,13 @@ public class TeacherService {
             Lesson lesson = lessonRepository.getOne(lessonId);
             List<QuizDTO> quizzes = quizRepository.findByLessonIs(lesson);
             List<QuizDTO> starting = new ArrayList<>(), running = new ArrayList<>(), ended = new ArrayList<>();
-            for (QuizDTO quiz: quizzes){
+            for (QuizDTO quiz : quizzes) {
                 Date now = new Date();
-                if (now.compareTo(quiz.getStartTime()) < 0){
+                if (now.compareTo(quiz.getStartTime()) < 0) {
                     starting.add(quiz);
-                }else if (now.compareTo(quiz.getDeadline()) > 0){
+                } else if (now.compareTo(quiz.getDeadline()) > 0) {
                     ended.add(quiz);
-                }else{
+                } else {
                     running.add(quiz);
                 }
             }
@@ -78,7 +84,7 @@ public class TeacherService {
         }
     }
 
-    public List<Submit> getSubmits(String _id, String lessonId, String quizId,int page, int size, String remark) throws ServerInternalException {
+    public List<Submit> getSubmits(String _id, String lessonId, String quizId, int page, int size, String remark) throws ServerInternalException {
         try {
             Lesson lesson = lessonRepository.getOne(lessonId);
             MatrixUser teacher = userRepository.getOne(_id);
@@ -106,7 +112,7 @@ public class TeacherService {
             System.out.println(remark);
             if (remark.equals("all"))
                 count = submitRepository.countByQuiz(quiz);
-            else if(remark.equals("true"))
+            else if (remark.equals("true"))
                 count = submitRepository.countByQuizAndScoreIsNotNull(quiz);
             else
                 count = submitRepository.countByQuizAndScoreIsNull(quiz);
@@ -126,7 +132,7 @@ public class TeacherService {
     }
 
     @Transactional(rollbackOn = Throwable.class)
-    public void remark(String _id, String lessonId, String quizId,  String submitId, ArrayList scores) throws ServerInternalException, ForbiddenException {
+    public void remark(String _id, String lessonId, String quizId, String submitId, ArrayList scores) throws ServerInternalException, ForbiddenException {
         try {
 
             Lesson lesson = lessonRepository.getOne(lessonId);
@@ -135,11 +141,16 @@ public class TeacherService {
                 throw new ForbiddenException("你不是这门课的老师！");
             Quiz quiz = quizRepository.getOne(quizId);
             Submit submit = submitRepository.getOne(submitId);
-            submit.setScore((Integer[])scores.toArray(new Integer[scores.size()]));
+            submit.setScore((Integer[]) scores.toArray(new Integer[scores.size()]));
+
+            kafkaUtil.sendSubmit(lessonId, submit);
+
             submitRepository.save(submit);
-        }catch (Exception e) {
-            if(e instanceof MatrixBaseException) throw e;
+        } catch (MatrixBaseException e) {
+            throw e;
+        } catch (Throwable e) {
             throw new ServerInternalException(e);
+
         }
     }
 
