@@ -79,7 +79,7 @@ public class TeacherController {
     }
 
     @MustLogin
-    //@Permission(value = Permission.Privilege.MUST_TEACHER)
+    @Permission(value = Permission.Privilege.MUST_TEACHER)
     @RequestMapping(path = "/score/{lessonId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getScore(MatrixHttpServletRequestWrapper request, @PathVariable String lessonId) throws ServerInternalException {
         HashMap<String, Object> data = teacherService.getScore(lessonId);
