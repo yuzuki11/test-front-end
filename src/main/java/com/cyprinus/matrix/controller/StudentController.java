@@ -74,7 +74,7 @@ public class StudentController {
     @RequestMapping(path = "/score/quiz/{quizId}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getScore(MatrixHttpServletRequestWrapper request, @PathVariable String quizId) throws ServerInternalException, EntityNotFoundException {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("score", studentService.getScore(request.getTokenInfo().get_id(), quizId));
+        data.put("scores", studentService.getScore(request.getTokenInfo().get_id(), quizId));
         return new ResEntity(HttpStatus.OK, "查询成功！", data).getResponse();
     }
 }

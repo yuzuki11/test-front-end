@@ -42,7 +42,7 @@ public class LessonService {
             MatrixUser matrixUser = userRepository.getOne(_id);
             lesson.setTeacher(matrixUser);
             lessonRepository.saveAndFlush(lesson);
-            Set<Lesson> tmp = matrixUser.getLessons_t();
+            List<Lesson> tmp = matrixUser.getLessons_t();
             tmp.add(lesson);
             matrixUser.setLessons_t(tmp);
             userRepository.save(matrixUser);

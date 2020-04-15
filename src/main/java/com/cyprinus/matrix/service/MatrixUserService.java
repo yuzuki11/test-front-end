@@ -43,7 +43,7 @@ public class MatrixUserService {
         this.lessonRepository = lessonRepository;
     }
 
-    public Map<String, Object> loginCheck(HashMap content) throws EntityNotFoundException, ForbiddenException, ServerInternalException {
+    public Map<String, Object> loginCheck(HashMap content) throws EntityNotFoundException, UnauthorizedException, ServerInternalException {
         try {
             MatrixUser user = matrixUserRepository.findByUserId((String) content.get("userId"));
             if ((user.getPassword() == null && content.get("password").equals(content.get("userId"))) || BCrypt.checkpw((String) content.get("password"), user.getPassword())) {
@@ -59,10 +59,10 @@ public class MatrixUserService {
                 data.put("token", token);
                 return data;
             } else {
-                throw new ForbiddenException("用户名密码不匹配!");
+                throw new UnauthorizedException("用户名密码不匹配!");
             }
         } catch (Throwable e) {
-            if (e instanceof ForbiddenException) throw e;
+            if (e instanceof UnauthorizedException) throw e;
             throw new ServerInternalException(e);
         }
     }
@@ -190,17 +190,21 @@ public class MatrixUserService {
         }
     }
 
-    public List<MatrixUser> getAllStudents(String lesson, int page, int size) throws ServerInternalException {
+    public HashMap<String, Object> getAllStudents(String lesson, int page, int size) throws ServerInternalException {
         try {
+            HashMap<String, Object> data = new HashMap<>();
             Lesson lesson1 = lessonRepository.getOne(lesson);
             List<MatrixUser> AllStudents = lesson1.getStudents();
+            System.out.println(AllStudents.size());
             List<MatrixUser> AllStudentsPage = new ArrayList<>();
             int currentIndex = (page > 1 ? (page - 1) * size : 0);
             for (int i = 0; i < size && i < AllStudents.size() - currentIndex; i++) {
                 MatrixUser temp = AllStudents.get(currentIndex + i);
                 AllStudentsPage.add(temp);
             }
-            return AllStudentsPage;
+            data.put("students", AllStudentsPage);
+            data.put("total", AllStudents.size());
+            return data;
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }

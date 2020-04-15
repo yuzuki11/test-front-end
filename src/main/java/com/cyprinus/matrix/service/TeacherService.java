@@ -43,7 +43,7 @@ public class TeacherService {
         this.submitRepository = submitRepository;
     }
 
-    public Set<Lesson> getLessons(String _id) throws ServerInternalException {
+    public List<Lesson> getLessons(String _id) throws ServerInternalException {
         try {
             MatrixUser teacher = userRepository.getOne(_id);
             return teacher.getLessons_t();
@@ -86,13 +86,18 @@ public class TeacherService {
                 throw new ForbiddenException("你不是这门课的老师！");
             Quiz quiz = quizRepository.getOne(quizId);
             Pageable pageable = PageRequest.of(page - 1, size);
-            List<Submit> submit;
-            if (remark.equals("all"))
-                submit = submitRepository.findByQuiz(quiz, pageable);
-            else if (remark.equals("true"))
-                submit = submitRepository.findByQuizAndScoreIsNotNull(quiz, pageable);
-            else
-                submit = submitRepository.findByQuizAndScoreIsNull(quiz, pageable);
+            List<Submit> submit = new ArrayList<>();
+            switch(remark) {
+                case "all":
+                    submit = submitRepository.findByQuiz(quiz, pageable);
+                    break;
+                case "true":
+                    submit = submitRepository.findByQuizAndScoreIsNotNull(quiz, pageable);
+                    break;
+                case "false":
+                    submit = submitRepository.findByQuizAndScoreIsNull(quiz, pageable);
+                    break;
+            }
             return submit;
         } catch (Exception e) {
             throw new ServerInternalException(e);
@@ -102,14 +107,19 @@ public class TeacherService {
     public Integer getSubmitsCount(String _id, String lessonId, String quizId, String remark) throws ServerInternalException {
         try {
             Quiz quiz = quizRepository.getOne(quizId);
-            Integer count;
+            Integer count = 0;
             System.out.println(remark);
-            if (remark.equals("all"))
-                count = submitRepository.countByQuiz(quiz);
-            else if(remark.equals("true"))
-                count = submitRepository.countByQuizAndScoreIsNotNull(quiz);
-            else
-                count = submitRepository.countByQuizAndScoreIsNull(quiz);
+            switch(remark){
+                case "all":
+                    count = submitRepository.countByQuiz(quiz);
+                    break;
+                case "true":
+                    count = submitRepository.countByQuizAndScoreIsNotNull(quiz);
+                    break;
+                case "false":
+                    count = submitRepository.countByQuizAndScoreIsNull(quiz);
+                    break;
+            }
             return count;
         } catch (Exception e) {
             throw new ServerInternalException(e);
