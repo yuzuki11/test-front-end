@@ -129,7 +129,7 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_CREATE_TOPICS: "mail:1:1,websocket:1:1,security:1:1,statistics:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_ADVERTISED_PORT: 9092
 
   mongodb:
@@ -174,17 +174,24 @@ services:
       SMTP_PORT: 465
       MAIL_USER: matrix@cyprinus.net.cn
       MAIL_PASS: DjuP7K5CRt7L9BZd
+      KAFKA_HOST: kafka:9092
+    depends_on:
+    - kafka
 
   statistics:
     image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-statistics
     networks:
       matrix:
         aliases:
-          - statistics
+        - statistics
     environment:
       PORT: 3000
       HOST: statistics
       DB_URL: mongodb://mongo:27017/matrix-statustics
+      KAFKA_HOST: kafka:9092
+    depends_on:
+    - mongodb
+    - kafka
 
   websocket:
     image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-websocket
@@ -192,10 +199,24 @@ services:
       matrix:
         aliases:
         - websocket
+    ports:
+    - 8999
     environment:
       RDS_HOST: redis
       RDS_PORT: 6379
       PORT: 8999
+      KAFKA_HOST: kafka:9092
+    depends_on:
+    - kafka
+
+  nginx:
+    image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-nginx
+    networks:
+      matrix:
+        aliases:
+        - nginx
+    ports:
+    - 80:4000
 
 
 volumes:
