@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   jpa:
     database: postgresql
     show-sql: true
@@ -9,7 +9,7 @@ spring:
 
   kafka:
     producer:
-      bootstrap-servers: ${kafka_server:127.0.0.1:9092}
+      bootstrap-servers: 127.0.0.1:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all
@@ -19,7 +19,7 @@ spring:
       properties:
         metadata:
           broker:
-            list: ${kafka_server:127.0.0.1:9092}
+            list: 127.0.0.1:9092
         message:
           send:
             max:
@@ -29,14 +29,14 @@ spring:
 
 
   datasource:
-    url: jdbc:${postgre_url:postgresql://127.0.0.1/matrix}
+    url: jdbc:postgresql://127.0.0.1/matrix
     username: postgres
     password: test
     driver-class-name: org.postgresql.Driver
   resources:
     static-locations: classpath:/templates/
   redis:
-    host: ${redis_url:localhost}
+    host: localhost
     port: 6379
     database: 0
 
@@ -45,13 +45,13 @@ spring:
     time-zone: GMT+8
 
 matrix:
-  secretKey: ${secret_key:dGVzdA==}
-  OSSUrl: ${oss_url:http://127.0.0.1:9001}
-  OSSSecretKey: ${oss_secret_key:minio123}
-  OSSAccessKey: ${oss_access_key:minio}
-  ImagePathBase: ${image_path_base:http://127.0.0.1:9001/matrix/}
+  secretKey: dGVzdA==
+  OSSUrl: http://127.0.0.1:9001
+  OSSSecretKey: minio123
+  OSSAccessKey: minio
+  ImagePathBase: http://127.0.0.1:9001/matrix/
 
 server:
   tomcat:
     uri-encoding: UTF-8
-  port: ${port:8888}
+  port: 8888
