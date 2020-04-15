@@ -21,6 +21,8 @@ public class Config {
 
     private String ImagePathBase;
 
+    private String UrlBase;
+
     public String getImagePathBase() {
         return ImagePathBase;
     }
@@ -61,6 +63,11 @@ public class Config {
         this.secretKey = secretKey;
     }
 
+    public String getUrlBase() {
+        return UrlBase;
+    }
 
-
+    public void setUrlBase(String urlBase) {
+        UrlBase = urlBase;
+    }
 }

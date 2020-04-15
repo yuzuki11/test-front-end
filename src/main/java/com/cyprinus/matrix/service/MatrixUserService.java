@@ -1,5 +1,6 @@
 package com.cyprinus.matrix.service;
 
+import com.cyprinus.matrix.Config;
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.exception.*;
@@ -24,6 +25,9 @@ import java.util.concurrent.TimeUnit;
 public class MatrixUserService {
 
     private final
+    Config config;
+
+    private final
     LessonRepository lessonRepository;
 
     private final
@@ -42,13 +46,14 @@ public class MatrixUserService {
     KafkaUtil kafkaUtil;
 
     @Autowired
-    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository, KafkaUtil kafkaUtil, RedisUtil redisUtil) {
+    public MatrixUserService(MatrixUserRepository matrixUserRepository, JwtUtil jwtUtil, ObjectUtil objectUtil, LessonRepository lessonRepository, KafkaUtil kafkaUtil, RedisUtil redisUtil, Config config) {
         this.matrixUserRepository = matrixUserRepository;
         this.jwtUtil = jwtUtil;
         this.objectUtil = objectUtil;
         this.lessonRepository = lessonRepository;
         this.kafkaUtil = kafkaUtil;
         this.redisUtil = redisUtil;
+        this.config = config;
     }
 
     public Map<String, Object> loginCheck(HashMap content) throws EntityNotFoundException, ForbiddenException, ServerInternalException, JsonProcessingException {
@@ -105,9 +110,9 @@ public class MatrixUserService {
                 MatrixRedisPayload payload = new MatrixRedisPayload(_id, todo, targetUser.getPassword(), token);
                 redisUtil.set(key, payload, 5, TimeUnit.MINUTES);
                 HashMap<String, String> values = new HashMap<>();
-                String link = "base?key=" + key + "&token=" + token;
+                String link = config.getUrlBase() + "verify?key=" + key + "&token=" + token;
                 values.put("link", link);
-                kafkaUtil.sendMail("UPDATE", "Matrix修改密码确认邮件", targetUser.getEmail(), values);
+                kafkaUtil.sendMail("UPDATE", "Matrix修改密码确认邮件", targetUser.getEmail(), targetUser.get_id(), values);
             } else matrixUserRepository.save(targetUser);
 
         } catch (Throwable e) {
@@ -157,9 +162,9 @@ public class MatrixUserService {
                 MatrixRedisPayload payload = new MatrixRedisPayload(_id, todo, content.getEmail(), token);
                 redisUtil.set(key, payload, 5, TimeUnit.MINUTES);
                 HashMap<String, String> values = new HashMap<>();
-                String link = "base?key=" + key + "&token=" + token;
+                String link = config.getUrlBase() + "verify?key=" + key + "&token=" + token;
                 values.put("link", link);
-                kafkaUtil.sendMail("UPDATE", "Matrix修改绑定邮箱确认邮件", payload.getValue(), values);
+                kafkaUtil.sendMail("UPDATE", "Matrix修改绑定邮箱确认邮件", payload.getValue(), _id, values);
                 content.setEmail(null);
             }
             objectUtil.copyNullProperties(content, user);

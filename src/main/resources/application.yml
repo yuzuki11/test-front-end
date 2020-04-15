@@ -30,8 +30,8 @@ spring:
 
   datasource:
     url: jdbc:${postgre_url:postgresql://127.0.0.1/matrix}
-    username: postgres
-    password: test
+    username: ${postgre_username:postgres}
+    password: ${postgre_password:test}
     driver-class-name: org.postgresql.Driver
   resources:
     static-locations: classpath:/templates/
@@ -50,6 +50,7 @@ matrix:
   OSSSecretKey: ${oss_secret_key:minio123}
   OSSAccessKey: ${oss_access_key:minio}
   ImagePathBase: ${image_path_base:http://127.0.0.1:9001/matrix/}
+  UrlBase: ${url_base:http://127.0.0.1:8888/}
 
 server:
   tomcat:

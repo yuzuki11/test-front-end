@@ -148,7 +148,7 @@ public class KafkaUtil {
         }
     }
 
-    public void sendMail(String model, String subject, String target, Object values) throws JsonProcessingException {
+    public void sendMail(String model, String subject, String target,String targetUserId , Object values) throws JsonProcessingException {
         MailPayload payload = new MailPayload(model, subject, target, values);
         String json = objectUtil.obj2json(payload);
         ListenableFuture<SendResult<String, String>> future = template.send("mail", json);
@@ -156,7 +156,7 @@ public class KafkaUtil {
             @Override
             public void onSuccess(SendResult<String, String> result) {
                 try {
-                    promptByWebsocket("SUCCESS", target, "正在发送邮件...");
+                    promptByWebsocket("SUCCESS", targetUserId, "正在发送邮件...");
                 } catch (Exception ignored) {
                 }
             }
@@ -169,7 +169,7 @@ public class KafkaUtil {
                     throwable.printStackTrace();
                 }
                 try {
-                    promptByWebsocket("ERROR", target, "邮件发送失败！");
+                    promptByWebsocket("ERROR", targetUserId, "邮件发送失败！");
                 } catch (Exception ignored) {
                 }
             }
