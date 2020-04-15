@@ -63,6 +63,18 @@ public class TextBookService {
             throw new ServerInternalException(e.getMessage());
         }
     }
+    public long getTextbooknum(String userId, String lessonId) throws ServerInternalException {
+        try {
+            MatrixUser student = matrixUserRepository.getOne(userId);
+            Lesson lesson = lessonRepository.getOne(lessonId);
+            TextBook textbook = textBookRepository.findByLessonAndStudent(lesson, student);
+            List<Problem> problem = textbook.getProblems();
+            return problem.size();
+        } catch (Exception e) {
+            throw new ServerInternalException(e.getMessage());
+        }
+    }
+
 
     public void addProblemInTextbook(TextBook textBook, String userId, String lessonId, List<Problem> problem) throws ServerInternalException {
         try {
