@@ -6,6 +6,7 @@ import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.entity.TextBook;
 import com.cyprinus.matrix.exception.BadRequestException;
 import com.cyprinus.matrix.exception.ForbiddenException;
+import com.cyprinus.matrix.exception.MatrixBaseException;
 import com.cyprinus.matrix.exception.ServerInternalException;
 import com.cyprinus.matrix.repository.*;
 import com.cyprinus.matrix.type.MatrixTokenInfo;
@@ -23,6 +24,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.xml.soap.Text;
 import java.util.*;
+
 @Service
 public class TextBookService {
 
@@ -52,7 +54,7 @@ public class TextBookService {
             Lesson lesson = lessonRepository.getOne(lessonId);
             TextBook textbook = textBookRepository.findByLessonAndStudent(lesson, student);
             List<Problem> problem = textbook.getProblems();
-            List<Problem> problemPage = new ArrayList<Problem>();
+            List<Problem> problemPage = new ArrayList<>();
             int currIdx = (page > 1 ? (page - 1) * size : 0);
             for (int i = 0; i < size && i < problem.size() - currIdx; i++) {
                 Problem temp = problem.get(currIdx + i);
@@ -63,6 +65,7 @@ public class TextBookService {
             throw new ServerInternalException(e.getMessage());
         }
     }
+
     public long getTextbooknum(String userId, String lessonId) throws ServerInternalException {
         try {
             MatrixUser student = matrixUserRepository.getOne(userId);
@@ -82,26 +85,24 @@ public class TextBookService {
             MatrixUser student = matrixUserRepository.getOne(userId);
             Lesson lesson = lessonRepository.getOne(lessonId);
 
-            if ((textBookRepository.findByStudent(student))!=null)//学生的错题本存在
+            if ((textBookRepository.findByStudent(student)) != null)//学生的错题本存在
             {
-                textBook=textBookRepository.findByStudent(student);
-                List<Problem> oldProblems=textBook.getProblems();
-                    //查重
+                textBook = textBookRepository.findByStudent(student);
+                List<Problem> oldProblems = textBook.getProblems();
+                //查重
                 for (Problem pro : problem) {
                     if (oldProblems.contains(pro))
                         oldProblems.remove(pro);
                 }
-                        problem.addAll(oldProblems);
+                problem.addAll(oldProblems);
             }
             textBook.setLesson(lesson);
             textBook.setStudent(student);
             textBook.setProblems(problem);
 
             textBookRepository.save(textBook);
-        } catch (Exception e) {
-            System.out.println(e);
-            throw new ServerInternalException(e.getMessage());
-
+        } catch (Throwable e) {
+            throw new ServerInternalException(e);
         }
     }
 }

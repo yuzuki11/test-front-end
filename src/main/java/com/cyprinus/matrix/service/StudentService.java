@@ -170,7 +170,7 @@ public class StudentService {
             }
             TextBookService textBookService=new TextBookService(textBookRepository,lessonRepository,userRepository);
             TextBook textBook=new TextBook();
-            List<Problem> wrongproblems=new ArrayList<Problem>();
+            List<Problem> wrongproblems= new ArrayList<>();
             // 客观题自动判分
             if (ifPureObjective) {
                 Integer[] scores = new Integer[problems.size()];

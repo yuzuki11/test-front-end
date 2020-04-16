@@ -145,7 +145,7 @@ public class TeacherService {
             Lesson lesson =lessonRepository.getOne(lessonId);
             List<MatrixUser> student=lesson.getStudents();
             List<Quiz> quizzes =quizRepository.findByLesson(lesson);
-            List<Submit> submits=new ArrayList<Submit>();
+            List<Submit> submits= new ArrayList<>();
             for (Quiz q:quizzes)
             {
                 submits.addAll(submitRepository.findAllByQuiz(q));
@@ -156,8 +156,8 @@ public class TeacherService {
                 for (int y=0;y<quizzes.size();y++)
                     score[x][y]=-1;
             int i=-1,j=-1;//有新的同学是i++ 有新的quiz是j++  找学生的话对应找i 找quiz的话对应找j
-            List<MatrixUser> studentByOrder = new ArrayList<MatrixUser>();
-            List<Quiz> quizByOrder = new ArrayList<Quiz>();
+            List<MatrixUser> studentByOrder = new ArrayList<>();
+            List<Quiz> quizByOrder = new ArrayList<>();
             for (Submit sub:submits)
             {
                 int stu_location=-1,quiz_location=-1;
@@ -206,8 +206,8 @@ public class TeacherService {
                   }
                 }
             }
-            List<QuizDTO2> quiz=new ArrayList<QuizDTO2>();
-            List<MatrixUserDTO> stu=new ArrayList<MatrixUserDTO>();
+            List<QuizDTO2> quiz= new ArrayList<>();
+            List<MatrixUserDTO> stu= new ArrayList<>();
             for (Quiz q:quizByOrder)
                 quiz.add(quizRepository.findBy_id(q.get_id()));
             for (MatrixUser s:studentByOrder)
@@ -238,8 +238,8 @@ public class TeacherService {
             submitRepository.save(submit);
             //下面开始提交错题（没测过非主观题）
             List<Problem> problems = quiz.getProblems();
-            Boolean ifObjective = true;
-            List<Problem> wrongproblems=new ArrayList<Problem>();
+            boolean ifObjective = true;
+            List<Problem> wrongproblems= new ArrayList<>();
             for (Problem problem : problems) {
                 if (!problem.getIfObjective()) {
                     ifObjective =false;

@@ -4,5 +4,7 @@ public interface MatrixUserDTO {
 
     public String get_id();
 
+    public String getUserId();
+
     public String getname();
 }
