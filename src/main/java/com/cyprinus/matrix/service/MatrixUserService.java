@@ -82,8 +82,9 @@ public class MatrixUserService {
             } else {
                 throw new UnauthorizedException("用户名密码不匹配!");
             }
+        } catch (MatrixBaseException e) {
+            throw e;
         } catch (Throwable e) {
-            if (e instanceof UnauthorizedException) throw e;
             throw new ServerInternalException(e);
         }
     }
@@ -233,7 +234,6 @@ public class MatrixUserService {
             throw new ServerInternalException(e);
         }
     }
-
 
 
     public void verifyOperate(String key, String token) throws NotFoundException, ServerInternalException, JsonProcessingException {

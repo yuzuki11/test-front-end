@@ -135,8 +135,7 @@ public class TeacherService {
 
     public HashMap<String, Object> getScore(String _id, String lessonId) throws ServerInternalException {
         try {
-            HashMap<String, Object> data = new HashMap<>();
-            return data;
+            return new HashMap<>();
         } catch (Exception e) {
             throw new ServerInternalException(e);
         }
