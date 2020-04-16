@@ -35,13 +35,18 @@ public class StudentService {
     private final
     SubmitRepository submitRepository;
 
+    private  final
+    TextBookRepository textBookRepository;
+
+
     @Autowired
-    public StudentService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository, SubmitRepository submitRepository, KafkaUtil kafkaUtil) {
+    public StudentService(LessonRepository lessonRepository, QuizRepository quizRepository, MatrixUserRepository userRepository,SubmitRepository submitRepository,TextBookRepository textBookRepository,KafkaUtil kafkaUtil) {
         this.lessonRepository = lessonRepository;
         this.quizRepository = quizRepository;
         this.userRepository = userRepository;
         this.submitRepository = submitRepository;
         this.kafkaUtil = kafkaUtil;
+        this.textBookRepository=textBookRepository;
     }
 
     // TODO:需要把任课教师字段去掉
@@ -140,7 +145,7 @@ public class StudentService {
 
     // 总觉得错误处理得非常蠢萌orz
     @Transactional(rollbackOn = Throwable.class)
-    public void submitAnswer(String _id, String lessonId, String quizId, String[] content) throws BadRequestException, ForbiddenException {
+    public void submitAnswer(String _id, String lessonId, String quizId, String[] content) throws BadRequestException, ForbiddenException, ServerInternalException {
         try {
             MatrixUser student = userRepository.getOne(_id);
             Lesson lesson = lessonRepository.getOne(lessonId);
@@ -151,10 +156,10 @@ public class StudentService {
             if (submitRepository.findByQuizAndStudent(quiz, student) != null)
                 throw new ForbiddenException("不可重复作答！");
             Date now = new Date();
-            if (now.compareTo(quiz.getDeadline()) > 0 || now.compareTo(quiz.getStartTime()) < 0)
-                throw new ForbiddenException("不在答题时间之内！");
             List<Problem> problems = quiz.getProblems();
-            if (content.length != problems.size())
+            if( now.compareTo(quiz.getDeadline()) > 0 || now.compareTo(quiz.getStartTime()) < 0 )
+                throw new ForbiddenException("不在答题时间之内！");
+            if( content.length != problems.size() )
                 throw new ForbiddenException("回答和问题数目不一致！");
             boolean ifPureObjective = true;
             for (Problem problem : problems) {
@@ -163,15 +168,24 @@ public class StudentService {
                     break;
                 }
             }
+            TextBookService textBookService=new TextBookService(textBookRepository,lessonRepository,userRepository);
+            TextBook textBook=new TextBook();
+            List<Problem> wrongproblems=new ArrayList<Problem>();
             // 客观题自动判分
             if (ifPureObjective) {
                 Integer[] scores = new Integer[problems.size()];
                 for (int i = 0; i < problems.size(); i++) {
                     Problem problem = problems.get(i);
                     scores[i] = (content[i].equals(problem.getAnswer()) ? quiz.getPoints()[i] : 0);
+                    if (scores[i]!=quiz.getPoints()[i])
+                        //加错题wrongproblems
+                        wrongproblems.add(problem);
                 }
                 submit.setScore(scores);
+
             }
+            //我扔
+            textBookService.addProblemInTextbook(textBook,_id,lessonId,wrongproblems);
             submit.setContent(content);
             submit.setStudent(student);
             submit.setQuiz(quiz);
