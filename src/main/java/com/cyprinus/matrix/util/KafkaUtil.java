@@ -26,6 +26,9 @@ public class KafkaUtil {
     public KafkaUtil(KafkaTemplate template, ObjectUtil objectUtil) {
         this.template = template;
         this.objectUtil = objectUtil;
+        template.send("email","test");
+        template.send("websocket","test");
+        template.send("statistics","test");
     }
 
     static class MailPayload implements Serializable {

@@ -169,7 +169,7 @@ class MatrixApplicationTests {
 
     @Test
     void testSocket() throws JsonProcessingException {
-        kafkaUtil.promptByWebsocket("hello","11111","");
+        kafkaUtil.promptByWebsocket("hello","5e8c6abe8237ec97fc0d3131","");
     }
 
 }
