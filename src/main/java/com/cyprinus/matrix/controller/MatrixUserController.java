@@ -36,7 +36,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException, JsonProcessingException {
+    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws UnauthorizedException, ServerInternalException {
         Map<String, Object> data = matrixUserService.loginCheck(matrixUser);
         return new ResEntity(HttpStatus.OK, "登录成功！", data).getResponse();
     }
@@ -120,9 +120,7 @@ public class MatrixUserController {
     @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/students", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request,@RequestParam(required = false) String lessonId,@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("students", matrixUserService.getAllStudents(lessonId, page, size));
-        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+        return new ResEntity(HttpStatus.OK, "查询成功！", matrixUserService.getAllStudents(lessonId, page, size)).getResponse();
     }
 
 

@@ -1,27 +1,28 @@
 package com.cyprinus.matrix.service;
 
 import com.cyprinus.matrix.dto.QuizDTO;
-import com.cyprinus.matrix.entity.*;
-import com.cyprinus.matrix.exception.BadRequestException;
+import com.cyprinus.matrix.entity.Lesson;
+import com.cyprinus.matrix.entity.MatrixUser;
+import com.cyprinus.matrix.entity.Quiz;
+import com.cyprinus.matrix.entity.Submit;
 import com.cyprinus.matrix.exception.ForbiddenException;
 import com.cyprinus.matrix.exception.MatrixBaseException;
 import com.cyprinus.matrix.exception.ServerInternalException;
-import com.cyprinus.matrix.repository.*;
-import com.cyprinus.matrix.type.MatrixTokenInfo;
-import com.cyprinus.matrix.util.BCrypt;
-import com.cyprinus.matrix.util.JwtUtil;
+import com.cyprinus.matrix.repository.LessonRepository;
+import com.cyprinus.matrix.repository.MatrixUserRepository;
+import com.cyprinus.matrix.repository.QuizRepository;
+import com.cyprinus.matrix.repository.SubmitRepository;
 import com.cyprinus.matrix.util.KafkaUtil;
-import com.cyprinus.matrix.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class TeacherService {
@@ -49,7 +50,7 @@ public class TeacherService {
         this.kafkaUtil = kafkaUtil;
     }
 
-    public Set<Lesson> getLessons(String _id) throws ServerInternalException {
+    public List<Lesson> getLessons(String _id) throws ServerInternalException {
         try {
             MatrixUser teacher = userRepository.getOne(_id);
             return teacher.getLessons_t();
@@ -92,13 +93,18 @@ public class TeacherService {
                 throw new ForbiddenException("你不是这门课的老师！");
             Quiz quiz = quizRepository.getOne(quizId);
             Pageable pageable = PageRequest.of(page - 1, size);
-            List<Submit> submit;
-            if (remark.equals("all"))
-                submit = submitRepository.findByQuiz(quiz, pageable);
-            else if (remark.equals("true"))
-                submit = submitRepository.findByQuizAndScoreIsNotNull(quiz, pageable);
-            else
-                submit = submitRepository.findByQuizAndScoreIsNull(quiz, pageable);
+            List<Submit> submit = new ArrayList<>();
+            switch(remark) {
+                case "all":
+                    submit = submitRepository.findByQuiz(quiz, pageable);
+                    break;
+                case "true":
+                    submit = submitRepository.findByQuizAndScoreIsNotNull(quiz, pageable);
+                    break;
+                case "false":
+                    submit = submitRepository.findByQuizAndScoreIsNull(quiz, pageable);
+                    break;
+            }
             return submit;
         } catch (Exception e) {
             throw new ServerInternalException(e);
@@ -108,14 +114,19 @@ public class TeacherService {
     public Integer getSubmitsCount(String _id, String lessonId, String quizId, String remark) throws ServerInternalException {
         try {
             Quiz quiz = quizRepository.getOne(quizId);
-            Integer count;
+            Integer count = 0;
             System.out.println(remark);
-            if (remark.equals("all"))
-                count = submitRepository.countByQuiz(quiz);
-            else if (remark.equals("true"))
-                count = submitRepository.countByQuizAndScoreIsNotNull(quiz);
-            else
-                count = submitRepository.countByQuizAndScoreIsNull(quiz);
+            switch(remark){
+                case "all":
+                    count = submitRepository.countByQuiz(quiz);
+                    break;
+                case "true":
+                    count = submitRepository.countByQuizAndScoreIsNotNull(quiz);
+                    break;
+                case "false":
+                    count = submitRepository.countByQuizAndScoreIsNull(quiz);
+                    break;
+            }
             return count;
         } catch (Exception e) {
             throw new ServerInternalException(e);

@@ -7,7 +7,9 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "MatrixUser")
@@ -51,19 +53,23 @@ public class MatrixUser extends MatrixBaseEntity {
     //所教课程
     @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name="teacher")
     @Column(name = "lessons_t")
     //@ElementCollection(targetClass = Lesson.class)
-    private Set<Lesson> lessons_t = new HashSet<>();
+    private List<Lesson> lessons_t = new ArrayList<>();
 
     //所选课程
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "lesson_student",joinColumns = @JoinColumn(name = "matrix_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "lesson_id"))
     @Column(name = "lessons_s")
     //@ElementCollection(targetClass = Lesson.class)
-    private Set<Lesson> lessons_s = new HashSet<>();
+    private List<Lesson> lessons_s = new ArrayList<>();
 
+    @JsonIgnore
     @JsonProperty
-    public Set<Lesson> getLessons() {
+    public List<Lesson> getLessons() {
         if ("student".equals(this.role))
             return this.lessons_s;
         if ("teacher".equals(this.role))
@@ -85,30 +91,30 @@ public class MatrixUser extends MatrixBaseEntity {
             this.lessons_t.remove(lesson);
     }
 
-    public void setLessons(Set<Lesson> lessons) {
+    public void setLessons(List<Lesson> lessons) {
         this.lessons = lessons;
     }
 
     @Transient
-    private Set<Lesson> lessons;
+    private List<Lesson> lessons;
 
     //@OneToMany
     //@JoinColumn(name = "teacher")
-    public Set<Lesson> getLessons_t() {
+    public List<Lesson> getLessons_t() {
         return lessons_t;
     }
 
-    public void setLessons_t(Set<Lesson> lessons_t) {
+    public void setLessons_t(List<Lesson> lessons_t) {
         this.lessons_t = lessons_t;
     }
 
     //@ManyToMany
     //@JoinColumn(name = "students")
-    public Set<Lesson> getLessons_s() {
+    public List<Lesson> getLessons_s() {
         return lessons_s;
     }
 
-    public void setLessons_s(Set<Lesson> lessons_s) {
+    public void setLessons_s(List<Lesson> lessons_s) {
         this.lessons_s = lessons_s;
     }
 

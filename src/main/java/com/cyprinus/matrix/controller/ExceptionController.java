@@ -1,10 +1,7 @@
 package com.cyprinus.matrix.controller;
 
 
-import com.cyprinus.matrix.exception.BadRequestException;
-import com.cyprinus.matrix.exception.ForbiddenException;
-import com.cyprinus.matrix.exception.NotFoundException;
-import com.cyprinus.matrix.exception.ServerInternalException;
+import com.cyprinus.matrix.exception.*;
 import com.cyprinus.matrix.type.MatrixHttpServletRequestWrapper;
 import com.cyprinus.matrix.type.ResEntity;
 import org.postgresql.util.PSQLException;
@@ -23,6 +20,11 @@ public class ExceptionController {
     @ExceptionHandler(ServerInternalException.class)
     public ResponseEntity handleServerInternal(ServerInternalException e, MatrixHttpServletRequestWrapper request) {
         return new ResEntity(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e.getFatal()).getResponse();
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity handleForbidden(UnauthorizedException e, MatrixHttpServletRequestWrapper request) {
+        return new ResEntity(HttpStatus.UNAUTHORIZED, e.getMessage(), e.getFatal()).getResponse();
     }
 
     @ExceptionHandler(ForbiddenException.class)

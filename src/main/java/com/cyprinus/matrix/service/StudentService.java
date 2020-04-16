@@ -45,7 +45,7 @@ public class StudentService {
     }
 
     // TODO:需要把任课教师字段去掉
-    public Set<Lesson> getLessons(String _id) throws ServerInternalException {
+    public List<Lesson> getLessons(String _id) throws ServerInternalException {
         try {
             MatrixUser student = userRepository.getOne(_id);
             return student.getLessons_s();
