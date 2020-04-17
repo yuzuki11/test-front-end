@@ -1,0 +1,94 @@
+version: '3.1'
+
+services:
+
+  backend:
+    image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-backend-core
+    networks:
+      matrix:
+        aliases:
+        - backend
+    ports:
+    - 8888
+    environment:
+      kafka_server: kafka:9092
+      postgre_url: postgresql://database/matrix
+      postgre_username: postgres
+      postgre_password: test
+      secret_key: dGVzdA==
+      oss_url: http://minio1:9000
+      oss_secret_key: minio123
+      oss_access_key: minio
+      image_path_base: http://127.0.0.1/image/matrix/
+      redis_url: redis
+      url_base: http://127.0.0.1/
+      port: 8888
+
+  mailer:
+    image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-mail
+    networks:
+      matrix:
+        aliases:
+        - mailer
+    environment:
+      MAIL_FROM: Matrix<matrix@cyprinus.net.cn>
+      SMTP_SERVER: smtp.exmail.qq.com
+      SMTP_PORT: 465
+      MAIL_USER: matrix@cyprinus.net.cn
+      MAIL_PASS: DjuP7K5CRt7L9BZd
+      KAFKA_HOST: kafka:9092
+
+  statistics:
+    image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-statistics
+    networks:
+      matrix:
+        aliases:
+        - statistics
+    ports:
+    - 3000
+    environment:
+      PORT: 3000
+      HOST: statistics
+      DB_URL: mongodb://mongo:27017/matrix-statistics
+      KAFKA_HOST: kafka:9092
+
+  websocket:
+    image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-websocket
+    networks:
+      matrix:
+        aliases:
+        - websocket
+    ports:
+    - 8999:8999
+    environment:
+      RDS_HOST: redis
+      RDS_PORT: 6379
+      PORT: 8999
+      KAFKA_HOST: kafka:9092
+
+  nginx:
+    image: matrix-dev-docker.pkg.coding.net/matrix-server/3.0.0/matrix-nginx
+    networks:
+      matrix:
+        aliases:
+        - nginx
+    ports:
+    - 80:4000
+    depends_on:
+    - websocket
+    - statistics
+    - backend
+
+
+volumes:
+  data1-1:
+  data1-2:
+  data2-1:
+  data2-2:
+  data3-1:
+  data3-2:
+  data4-1:
+  data4-2:
+
+networks:
+  matrix:

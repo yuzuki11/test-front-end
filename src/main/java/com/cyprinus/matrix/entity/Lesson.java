@@ -40,7 +40,7 @@ public class Lesson extends MatrixBaseEntity {
 
     //学生
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(mappedBy="lessons_s", cascade=CascadeType.REFRESH)
     @Column(name = "students")
     //@ElementCollection(targetClass = MatrixUser.class)
     private List<MatrixUser> students;
@@ -92,7 +92,8 @@ public class Lesson extends MatrixBaseEntity {
     }
 
     public void addStudent(MatrixUser student) {
-        this.students.add(student);
+        if(!this.students.contains(student))
+            this.students.add(student);
     }
 
     public void removeStudent(MatrixUser student) {

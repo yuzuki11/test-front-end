@@ -36,7 +36,7 @@ public class MatrixUserController {
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws ForbiddenException, ServerInternalException {
+    public ResponseEntity login(MatrixHttpServletRequestWrapper request, @RequestBody HashMap<String, Object> matrixUser) throws UnauthorizedException, ServerInternalException {
         Map<String, Object> data = matrixUserService.loginCheck(matrixUser);
         return new ResEntity(HttpStatus.OK, "登录成功！", data).getResponse();
     }
@@ -52,7 +52,7 @@ public class MatrixUserController {
 
     @MustLogin
     @RequestMapping(path = "/pwd", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException {
+    public ResponseEntity putPwd(MatrixHttpServletRequestWrapper request, @RequestBody Map<String, String> content) throws ForbiddenException, ServerInternalException, JsonProcessingException {
         matrixUserService.putPwd(request.getTokenInfo().get_id(), content.get("password"), content.get("old"));
         return new ResEntity(HttpStatus.OK, "修改成功！").getResponse();
     }
@@ -109,13 +109,18 @@ public class MatrixUserController {
         return new ResEntity(HttpStatus.OK, "导入成功！").getResponse();
     }
 
+    @RequestMapping(path = "/verify", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity verifyOperate(MatrixHttpServletRequestWrapper request, @RequestParam String key, @RequestParam String token) throws NotFoundException, ServerInternalException, JsonProcessingException {
+        if (key == null || token == null) throw new NotFoundException();
+        matrixUserService.verifyOperate(key, token);
+        return new ResEntity(HttpStatus.OK, "操作成功！").getResponse();
+    }
+
     @MustLogin
     @Permission(Permission.Privilege.NOT_STUDENT)
     @RequestMapping(path = "/students", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getAllStudents(MatrixHttpServletRequestWrapper request,@RequestParam(required = false) String lessonId,@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int size) throws ServerInternalException {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("students", matrixUserService.getAllStudents(lessonId, page, size));
-        return new ResEntity(HttpStatus.OK, "查询成功！", result).getResponse();
+        return new ResEntity(HttpStatus.OK, "查询成功！", matrixUserService.getAllStudents(lessonId, page, size)).getResponse();
     }
 
 

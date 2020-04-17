@@ -1,6 +1,7 @@
 package com.cyprinus.matrix.repository;
 
 import com.cyprinus.matrix.dto.QuizDTO;
+import com.cyprinus.matrix.dto.QuizDTO2;
 import com.cyprinus.matrix.entity.Lesson;
 import com.cyprinus.matrix.entity.MatrixUser;
 import com.cyprinus.matrix.entity.Quiz;
@@ -18,4 +19,6 @@ public interface SubmitRepository extends JpaRepository<Submit, String> {
     List<Submit> findByQuiz(Quiz quiz,  Pageable pageable);
     List<Submit> findByQuizAndScoreIsNull(Quiz quiz,  Pageable pageable);
     List<Submit> findByQuizAndScoreIsNotNull(Quiz quiz,  Pageable pageable);
+    //List<Submit> findAllByQuiz(List<Quiz> quiz);
+    List<Submit> findAllByQuiz(Quiz quiz);
 }

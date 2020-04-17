@@ -1,0 +1,40 @@
+env MATRIX_HOST;
+env MATRIX_PORT;
+env MATRIX_OSS_HOST;
+env MATRIX_OSS_PORT;
+env MATRIX_WS_HOST;
+env MATRIX_WS_PORT;
+env MATRIX_DOMAIN;
+
+upstream backend {
+     ${"MATRIX_HOST"}:${"MATRIX_PORT"};
+}
+
+upstream image {
+   ${"MATRIX_OSS_HOST"}:${"MATRIX_OSS_PORT"};
+}
+
+upstream websocket {
+   ${"MATRIX_WS_HOST"}:${"MATRIX_WS_PORT"};
+}
+
+ server {
+        listen 4000;
+        server_name  ${"MATRIX_DOMAIN"};
+        charset utf-8;
+        access_log off;
+        client_max_body_size 50m;
+
+        location /api {
+            proxy_pass http://backend;
+
+        }
+
+        location /image {
+            proxy_pass http://image;
+        }
+
+        location /websocket {
+            proxy_pass http://websocket;
+        }
+}
